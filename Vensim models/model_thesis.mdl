@@ -1,0 +1,3092 @@
+{UTF-8}
+Inertia=
+	Setting quota
+	~	GtMF/Year/Year
+	~		|
+
+Harvesting effort juveniles=
+	MAX(0,MIN(Mesopelagic fish juvinile/TIME STEP , MIN( Harvest limit*Fraction juvinile to fish biomass\
+		/Average weight per juvinile MF
+, Relative amount of juvinile MF*Catchability*Fraction juvinile to fish biomass*Effort\
+		/Average weight per juvinile MF)))
+	~	GMF/Year
+	~	MAX(0,MIN(Mesopelagic fish juvinile/TIME STEP ,Relative amount of juvinile \
+		MF*Catchability*Fraction juvinile to fish biomass*Effort/Average weight \
+		per juvinile MF))
+	|
+
+High food shortage predators=
+	10
+	~	Dmnl
+	~		|
+
+High food shortage=
+	100
+	~	Dmnl
+	~		|
+
+Food availability if no zooplankton=
+	1/9
+	~	Dmnl
+	~		|
+
+Effects of food shortage on deaths= WITH LOOKUP (
+	XIDZ(1,Relative food availability predator, High food shortage predators),
+		([(0,0)-(15,0.7)],(0,0),(1,0.1),(2,0.3),(4,0.45),(5,0.5),(10,0.62),(15,0.63) ))
+	~	1/Year
+	~	([(0,0)-(10,0.7)],(0,0),(1,0.02),(2,0.1),(4,0.3),(5,0.43),(10,0.62) )
+		XIDZ(1,Relative food availability predator, 10)
+	|
+
+Juvinile death due to predation MF=
+	MIN(Mesopelagic fish juvinile/TIME STEP, Consumed juviniles*Share of juvinile MF in feed stock\
+		*Resolved share of food demand by MF*Relative amount of juvinile MF)
+	~	GMF/Year
+	~	MIN(Mesopelagic fish juvinile/TIME STEP, Consumed juviniles*Share of \
+		juvinile MF in feed stock*Resolved share of food demand by MF*Relative \
+		amount of juvinile MF)
+	|
+
+Death due to hunger juvinile MF=
+	MIN(Mesopelagic fish juvinile/TIME STEP, Mesopelagic fish juvinile * Effects of food shortage on deaths MF\
+		*Fraction juvinile to adult MF)
+	~	GMF/Year
+	~	MIN(Mesopelagic fish juvinile/TIME STEP, Mesopelagic fish juvinile * \
+		Effects of food shortage on deaths MF*Fraction juvinile to adult MF)
+	|
+
+Downwelling=
+	C concentration surface*Downwelling water+Other carbon fluxes*Relative amount of phytoplankton
+	~	GtC/Year
+	~	Bice, D. (z.d.). Unit 9 Reading. Carleton.Edu. Geraadpleegd op 26 juni \
+		2021, van \
+		https://serc.carleton.edu/integrate/teaching_materials/earth_modeling/stude\
+		nt_materials/unit9_article1.html
+	|
+
+Setting quota=
+	Harvesting quota*Meeting pulse train*Total influence lobbying
+	~	GtMF/Year/Year
+	~		|
+
+Initial quota=
+	0.3
+	~	GtMF/Year
+	~		|
+
+Meeting pulse train=
+	PULSE TRAIN( 2010, TIME STEP , Time between meeting , 2100 )/TIME STEP
+	~	1/Year
+	~		|
+
+Quota= INTEG (
+	Setting quota-Old quota,
+		Initial quota)
+	~	GtMF/Year
+	~		|
+
+Old quota=
+	Meeting pulse train*Quota
+	~	GtMF/Year/Year
+	~		|
+
+Fraction of migrating MF=
+	IF THEN ELSE (Switch risk reward mechanism=1, Effect of food availability on migration pattern 1\
+		, IF THEN ELSE (Switch risk reward mechanism=2,Effect of food availability on migration pattern 2\
+		,Fraction of migrating MF constant))
+	~	Dmnl
+	~	Aksnes, D. L., Røstad, A., Kaartvedt, S., Martinez, U., Duarte, C. M., & \
+		Irigoien, X. (2017). Light penetration structures the deep acoustic \
+		scattering layers in the global ocean. Science advances, 3(5), e1602468.
+	|
+
+Fraction of migrating MF constant=
+	0.37
+	~	Dmnl
+	~	Anderson et al.,2019
+	|
+
+Fraction of surface grazing by MF=
+	Grazing in surface by MF*Fraction of migrating MF
+	~	Dmnl
+	~		|
+
+Effect of food availability on migration pattern 1= WITH LOOKUP (
+	Relative amount of zooplankton,
+		([(0.3,0)-(1.4,0.5)],(0.3,0.2),(0.4,0.28),(0.5,0.31),(1,0.37),(1.1,0.38),(1.4,0.4) \
+		))
+	~	Dmnl
+	~		|
+
+Effect of food availability on migration pattern 2= WITH LOOKUP (
+	Relative amount of zooplankton,
+		([(0.3,0)-(1.4,0.5)],(0.3,0.1),(1.4,1.6) ))
+	~	Dmnl
+	~		|
+
+Grazed C by MF=
+	Death due to predation zooplankton*C content copepods*Fraction of surface grazing by MF
+	~	GtC/Year
+	~		|
+
+Fraction grazed C ending up in surface=
+	0.4
+	~	Dmnl
+	~	Anderson et al., 2019
+	|
+
+Total influence lobbying=
+	Influence industry group-Influence environmental group
+	~	Dmnl
+	~		|
+
+Switch risk reward mechanism=
+	1
+	~	Dmnl
+	~	1 = risk reward asymptotic
+		2= risk reward linear & higher incluence
+		3= constant migration, no risk reward
+	|
+
+Harvest limit=
+	Quota*(1+Percentage discarded fish)
+	~	GtMF/Year
+	~	Harvesting quota*(1+Percentage discarded fish)
+	|
+
+Capacity mixed fisheries= INTEG (
+	Decrease mixed capacity MF-Increase mixed capacity MF,
+		Initial capacity mixed*Efficiency factor fisheries)
+	~	GtMF/Year
+	~		|
+
+Efficiency factor fisheries=
+	7
+	~	Dmnl
+	~		|
+
+Relative food availability for MF=
+	MAX ( Zooplankton/Annual consumption MF/Year , 0 )
+	~	Dmnl
+	~	MAX ( Zooplankton/Annual consumption MF/Year , 0 )
+		MAX ( Death due to predation zooplankton/Annual consumption MF , 0 )
+	|
+
+Relative food availability zooplankton=
+	MAX ( XIDZ( Phytoplankton, Annual consumption by zooplankton*Year, Food availability if no zooplankton\
+		) , 0 )
+	~	Dmnl
+	~		|
+
+Food shortage MF=
+	XIDZ ( 1 , Relative food availability for MF , High food shortage )
+	~	Dmnl
+	~	XIDZ ( 1 , Relative food availability for MF , 10 )
+	|
+
+Upwelling from surface=
+	Surface C/Upwelling delay surface
+	~	GtC/Year
+	~	(DELAY3I(Oceanic C uptake, Upwelling delay surface,Surface C/Upwelling \
+		delay surface))-Vertical migration-Downwelling
+	|
+
+Other carbon fluxes=
+	5
+	~	GtC/Year
+	~	Assumption
+	|
+
+Specialist capacity used delayed=
+	SMOOTH( Specialist capacity used, Harvest information delay )
+	~	Dmnl
+	~		|
+
+Relative specialist capacity decrease due to used capacity= WITH LOOKUP (
+	Specialist capacity used delayed,
+		([(0.1,0)-(2,2)],(0.1,0.8),(0.6,0.2),(0.999,0),(1,0),(1.4,0),(1.8,0),(2,0) ))
+	~	Dmnl
+	~	Specialist capacity used estimation+Relative profitability MF vs regular fish
+		
+		IF THEN ELSE( Specialist capacity used < 1 :AND: Relative profitability MF \
+		vs regular fish < 1 , Specialist capacity used+Relative profitability MF \
+		vs regular fish , 0 )
+	|
+
+Mixed capacity used delayed=
+	SMOOTH( Mixed capacity used, Information delay capacity in use )
+	~	Dmnl
+	~		|
+
+Relative specialist capacity increase due to used capacity= WITH LOOKUP (
+	Specialist capacity used delayed,
+		([(0.1,0)-(2,2)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.2,1.05),(1.8,1.15),(2,1.2) ))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0),(0.4,0),(0.6,0),(1,0),(1.4,1.2),(1.8,1.3),(2,1.6) \
+		)
+	|
+
+net uptake ocean=
+	Oceanic C uptake-Total upwelling-Total remineralisation-Upwelling from surface-Weathering of carbon
+	~	GtC/Year
+	~		|
+
+Information delay capacity in use=
+	3
+	~	Year
+	~	Assumption
+	|
+
+Oceanic C uptake=
+	MIN(Transfer velocity for GtC per year * (Atmospheric CO2 concentration-Oceanic C concentration\
+		)*Unit correction m3,Saturation uptake)
+	~	GtC/Year
+	~	MAX(0,Transfer velocity for GtC per year * (Atmospheric CO2 \
+		concentration-Oceanic C concentration)*Unit correction m3)
+	|
+
+Saturation uptake=
+	125
+	~	GtC/Year
+	~	https://agupubs.onlinelibrary.wiley.com/doi/epdf/10.1029/2000GL012015
+	|
+
+Total upwelling=
+	SUM(Upwelling and mixing from deep[Layers!])
+	~	GtC/Year
+	~		|
+
+Relative mixed capacity increase due to used capacity= WITH LOOKUP (
+	Mixed capacity used delayed,
+		([(0.1,0)-(2,2)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.2,1.05),(1.8,1.15),(2,1.2) ))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.4,1.05),(1.8,1.1),(2,1\
+		.15) )
+	|
+
+Increase mixed capacity MF=
+	Capacity mixed fisheries * Relative mixed capacity increase due to profit*Relative mixed capacity increase due to used capacity\
+		/Year
+	~	GtMF/Year/Year
+	~	DELAY3I( Decrease mixed capacity MF, Converting time mixed capacity, \
+		(Capacity mixed MF fisheries * Relative mixed capacity \
+		increase)/Converting time mixed capacity)
+	|
+
+Decrease mixed capacity MF=
+	Capacity mixed MF fisheries * Relative mixed capacity decrease due to profit * Relative mixed capacity decrease due to used capacity\
+		/Year
+	~	GtMF/Year/Year
+	~		|
+
+Relative specialist capacity increase due to profit= WITH LOOKUP (
+	Relative profitability MF vs regular fish,
+		([(0.1,0)-(20,4)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.2,1.05),(3,4),(20,4) ))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.2,1.05),(1.8,1.15),(2,\
+		1.2) )
+	|
+
+Reducing capacity specialist=
+	Capacity specialist fisheries * (Relative specialist capacity decrease due to profit\
+		 * Relative specialist capacity decrease due to used capacity)/Year
+	~	GtMF/(Year*Year)
+	~	Capacity specialist fisheries * (Relative specialist capacity decrease * Relative \
+		specialist capacity decrease 2)/Year
+		
+		IF THEN ELSE (Relative specialist capacity decrease 2>0.5, Capacity specialist \
+		fisheries * (Relative specialist capacity decrease 2)/Year,
+		Capacity specialist fisheries * (Relative specialist capacity decrease * \
+		Relative specialist capacity decrease 2)/Year)
+	|
+
+Relative specialist capacity decrease due to profit= WITH LOOKUP (
+	Relative profitability MF vs regular fish,
+		([(0.1,0)-(30,2)],(0.1,0.8),(0.6,0.2),(0.999,0.1),(1,0.1),(1.4,0.1),(1.8,0.1),(2,0.1\
+		),(30,0.1) ))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0.8),(0.6,0.2),(0.999,0),(1,0),(1.4,0),(1.8,0),(2,0) \
+		)
+	|
+
+Planning new capacity specialist=
+	Capacity specialist fisheries * Relative specialist capacity increase due to profit*\
+		Relative specialist capacity increase due to used capacity/Year
+	~	GtMF/(Year*Year)
+	~	IF THEN ELSE(Capacity specialist fisheries < 0.5, 0.1 ,  Capacity \
+		specialist fisheries * Relative specialist capacity increase)*Choose to \
+		increase specialist/Year
+	|
+
+Relative mixed capacity decrease due to profit= WITH LOOKUP (
+	Relative profitability MF vs regular fish,
+		([(0.1,0)-(2,2)],(0.1,0.8),(0.6,0.2),(0.999,0.1),(1,0.1),(1.4,0.1),(1.8,0.1),(2,0.1\
+		) ,(20,0.1)))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0.5),(0.6,0.3),(0.999,0),(1,0),(1.4,0),(1.8,0),(2,0) \
+		)
+	|
+
+Relative mixed capacity increase due to profit= WITH LOOKUP (
+	Relative profitability MF vs regular fish,
+		([(0.1,0)-(3,4)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.2,1.05),(3,4),(20,4) ))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0),(0.4,0),(0.6,0),(0.99,0),(1.2,1.05),(1.8,1.15),(2,\
+		1.2) )
+	|
+
+Relative mixed capacity decrease due to used capacity= WITH LOOKUP (
+	Mixed capacity used delayed,
+		([(0.1,0)-(2,2)],(0.1,0.8),(0.6,0.2),(0.999,0),(1,0),(1.4,0),(1.8,0),(2,0) ))
+	~	Dmnl
+	~	([(0.1,0)-(2,2)],(0.1,0.5),(0.6,0.3),(0.999,0),(1,0),(1.4,0),(1.8,0),(2,0) \
+		)
+	|
+
+Harvesting quota=
+	Look up harvesting quota(Time)
+	~	GtMF/Year
+	~	Look up harvesting quota 1(Time)*(Influence industry group - Influence \
+		environmental group)
+	|
+
+Look up harvesting quota(
+	[(2010,0)-(2100,10)],(2010,0.3),(2100,0.3))
+	~	GtMF/Year
+	~	10=3
+	|
+
+Total remineralisation=
+	SUM(Remineralisation[Layers!])
+	~	GtC/Year
+	~		|
+
+Share of aquaculture=
+	0.5
+	~	Dmnl
+	~	Aquaculture. (z.d.). fisheries.noaa.gov. \
+		https://www.fisheries.noaa.gov/topic/aquaculture
+	|
+
+Spawning mauriculus=
+	Spawning myctophidae*Fraction spawning mauriculus vs myctophidae
+	~	Dmnl
+	~		|
+
+Fraction spawning mauriculus vs myctophidae=
+	0.75
+	~	Dmnl
+	~	Assumption + Armstrong & Prosch, 1991
+	|
+
+Initial weight juvinile MF=
+	1
+	~	GtMF
+	~	Jones et al., 2014; StJohn et al., 2020
+	|
+
+Life expectancy myctophidae adult=
+	4
+	~	Year
+	~		|
+
+Spawning MF=
+	SWITCH lanternfish to mauriculus*Spawning myctophidae+(1-SWITCH lanternfish to mauriculus\
+		)*Spawning mauriculus
+	~	Dmnl
+	~		|
+
+Spawning myctophidae=
+	Female fraction*Spawning fraction*Survived larvea
+	~	Dmnl
+	~		|
+
+Living depth myctophidae=
+	950
+	~	m
+	~	Catul et al., 2011
+	|
+
+Life expectancy adult MF=
+	SWITCH lanternfish to mauriculus*Life expectancy myctophidae adult+(1-SWITCH lanternfish to mauriculus\
+		)*Life expectancy mauriculus
+	~	Year
+	~	 Catul et al., 2011
+	|
+
+Initial weight adult MF=
+	9
+	~	GtMF
+	~	Jones et al., 2014; StJohn et al., 2020
+	|
+
+Living depth MF=
+	IF THEN ELSE(SWITCH lanternfish to mauriculus=1,Living depth myctophidae,Living depth mauriculus\
+		)
+	~	m
+	~		|
+
+Growth period myctophidae=
+	0.583
+	~	Year
+	~		|
+
+growth period MF=
+	SWITCH lanternfish to mauriculus*Growth period myctophidae+(1-SWITCH lanternfish to mauriculus\
+		)*Growth period mauriculus
+	~	Year
+	~	7 months https://link.springer.com/article/10.1007/s11160-010-9176-4
+		0.583
+	|
+
+Growth larvea=
+	Effects of food shortage on births MF*Mesopelagic fish adult*Spawning MF/Life expectancy adult MF
+	~	GMF/Year
+	~	MAX (Available zooplankton*Mesopelagic fish adult*Female fraction*Spawning \
+		fraction*Survived larvea/Life expectancy MF adult
+		, 0 )
+	|
+
+Spawning fraction=
+	0.18
+	~	Dmnl
+	~	Sassa, C. (2019). Estimation of the spawning biomass of myctophids based \
+		on larval production and reproductive parameters: the case study of \
+		Benthosema pterotum in the East China Sea. ICES Journal of Marine Science, \
+		76(3), 743-754.
+	|
+
+Mixed capacity used=
+	Effective effort/(Capacity specialist fisheries+Capacity mixed MF fisheries)
+	~	Dmnl
+	~	Effort*Percentage mixed fishery capacity / Capacity mixed MF fisheries
+	|
+
+Specialist capacity used=
+	Effective effort/(Capacity specialist fisheries+Capacity mixed MF fisheries)
+	~	Dmnl
+	~	Effort*(1-Percentage mixed fishery capacity) / Capacity mixed MF fisheries
+	|
+
+Effective effort=
+	ZIDZ(Harvesting effort juveniles/Catchability*Average weight per juvinile MF,Relative amount of juvinile MF\
+		) + ZIDZ(Harvesting effort adults/Catchability*Average weight per adult MF,Relative amount of adult MF\
+		)
+	~	GtMF/Year
+	~		|
+
+Risk perception biomass 2= WITH LOOKUP (
+	Biomass MF delayed,
+		([(0,0)-(15,1)],(0,1),(10,0.1),(15,0.1) ))
+	~	Dmnl
+	~	IF THEN ELSE( Change in biomass last two years < 0 , 0.1 , 0 )
+		IF THEN ELSE( Biomass MF < 8 , 0.1 , 0 )
+	|
+
+Risk perception climate=
+	IF THEN ELSE(Switch risk perception climate=1, Logistic risk perception climate, IF THEN ELSE\
+		(Switch risk perception climate=2, Cubic risk perception, Linear risk perception))
+	~	Dmnl
+	~		|
+
+Growth phytoplankton=
+	Influence sunlight on phyto*Influence CO2 on phyto*Phytoplankton/Turnover time phytoplankton
+	~	GtPhyto/Year
+	~	Phytoplankton/Turnover time phyto*Influence sunlight on phytoplankton \
+		growth*Influence CO2 concentration on pythoplankton growth
+	|
+
+Sale price MF=
+	Costs MF status quo*Sale price MF change due fishmeal shortage
+	~	$/GtMF
+	~		|
+
+Sale price MF change due fishmeal shortage=
+	IF THEN ELSE (Switch price change=1,Sale price MF change due fishmeal shortage 1,Sale price MF change due fishmeal shortage 2\
+		)
+	~	Dmnl
+	~		|
+
+Influence environmental group= WITH LOOKUP (
+	Risk perception climate + Risk perception biomass,
+		([(0,0)-(3,0.4)],(0,0),(1,0.1),(2,0.2),(3,0.3) ))
+	~	Dmnl
+	~	([(0,0)-(3,0.4)],(0,0),(1,0.1),(2,0.2),(3,0.3) )
+	|
+
+Sale price MF change due fishmeal shortage 2= WITH LOOKUP (
+	Fraction demand to supply fishmeal,
+		([(0,0)-(4,3)],(0,0),(0.2,0.1),(0.8,0.5),(0.95,0.7),(1.05,1.1),(1.3,1.7),(1.6,2),(1.9\
+		,2.2),(2.5,2.3),(4,2.5) ))
+	~	Dmnl
+	~		|
+
+Lower 80 population growth= WITH LOOKUP (
+	(Time/1)
+	,
+		([(2010,-0.005)-(2100,0.07)],(2010,0.0121),(2020,0.0091),(2040,0.005),(2060,0.0018)\
+		,(2080,-0.0003),(2100,-0.0015)))
+	~	Dmnl/Year
+	~	Lower 80%
+		United Nations, Department of Economic and Social Affairs, Population Division \
+		(2019). World Population Prospects: The 2019 Revision, DVD Edition.
+		Link	https://population.un.org/wpp2019/Download/Standard/Interpolated/
+	|
+
+Influence sunlight on phytoplankton growth 2= WITH LOOKUP (
+	Phtyoplankton concentration surface,
+		([(2e-17,0)-(4e-17,2)],(2.5e-17,1.2),(3e-17,0.01) ))
+	~	Dmnl
+	~		|
+
+Switch influence CO2 on phytoplankton=
+	1
+	~	Dmnl
+	~		|
+
+Switch influence sunlight on phytoplankton=
+	1
+	~	Dmnl
+	~		|
+
+Influence CO2 concentration on pythoplankton growth 2= WITH LOOKUP (
+	C concentration surface,
+		([(1e-14,0)-(2e-14,2)],(1.4e-14,0.1),(1.9e-14,1.4) ))
+	~	Dmnl
+	~		|
+
+Switch population growth=
+	1
+	~	Dmnl
+	~	1=low
+		2=median
+		3=high
+	|
+
+Switch risk perception biomass=
+	1
+	~	Dmnl
+	~	1=asymptotic 2=linear
+	|
+
+Switch risk perception climate=
+	1
+	~	Dmnl
+	~	1=logistic 2=cubic 3=linear
+	|
+
+Risk perception biomass=
+	IF THEN ELSE(Switch risk perception biomass=1,Risk perception biomass 1,Risk perception biomass 2\
+		)
+	~	Dmnl
+	~		|
+
+Profitability change MF fisheries=
+	IF THEN ELSE(Switch profitability change MF fisheries=1,Profitability change MF fisheries scenario 1\
+		,Profitability change MF fisheries scenario 2)
+	~	Dmnl
+	~		|
+
+Median population growth= WITH LOOKUP (
+	(Time/1),
+		([(2010,-0.005)-(2100,0.07)],(2010,0.0121),(2020,0.0098),(2040,0.0061),(2060,0.0033\
+		),(2080,0.0014),(2100,0.0004)))
+	~	Dmnl/Year
+	~	MEDIAN
+		United Nations, Department of Economic and Social Affairs, Population Division \
+		(2019). World Population Prospects: The 2019 Revision, DVD Edition.
+		Link	https://population.un.org/wpp2019/Download/Standard/Interpolated/
+	|
+
+Profitability change MF fisheries scenario 2= WITH LOOKUP (
+	Time,
+		([(2010,0)-(2100,2)],(2010,1),(2100,0.01) ))
+	~	Dmnl
+	~	([(2010,0)-(2100,2)],(2010,1),(2030,0.9),(2040,0.8),(2060,0.75),(2100,0.7) )
+		([(2010,0)-(2100,2)],(2010,1),(2030,0.7),(2040,0.4),(2060,0.11),(2100,0.08)\
+		 )
+	|
+
+Influence sunlight on phyto=
+	IF THEN ELSE(Switch influence sunlight on phytoplankton=1,Influence sunlight on phytoplankton growth 1\
+		,Influence sunlight on phytoplankton growth 2)
+	~	Dmnl
+	~	Charalampous, E., Matthiessen, B., & Sommer, U. (2018). Light effects on \
+		phytoplankton morphometric traits influence nutrient utilization ability. \
+		Journal of Plankton Research, 40(5), 568-579.
+		Edwards, K. F., Thomas, M. K., Klausmeier, C. A., & Litchman, E. (2016). \
+		Phytoplankton growth and the interaction of light and temperature: A \
+		synthesis at the species and community level. Limnology and Oceanography, \
+		61(4), 1232-1244.
+	|
+
+Population growth=
+	IF THEN ELSE(Switch population growth = 1,Lower 80 population growth,IF THEN ELSE(Switch population growth\
+		=2, Median population growth, Higher 80 population growth))
+	~	Dmnl/Year
+	~	United Nations, Department of Economic and Social Affairs, Population \
+		Division (2019). World Population Prospects: The 2019 Revision, DVD \
+		Edition.
+	|
+
+Switch profitability change MF fisheries=
+	1
+	~	Dmnl
+	~	1= scenario 1
+		2= scenario 2
+	|
+
+Influence CO2 on phyto=
+	IF THEN ELSE(Switch influence CO2 on phytoplankton=1,Influence CO2 concentration on pythoplankton growth 1\
+		,Influence CO2 concentration on pythoplankton growth 2)
+	~	Dmnl
+	~	Schippers, P., Lürling, M., & Scheffer, M. (2004). Increase of atmospheric CO2 \
+		promotes phytoplankton productivity. Ecology letters, 7(6), 446-451.
+		influence sunlight
+	|
+
+Higher 80 population growth= WITH LOOKUP (
+	(Time/1),
+		([(2010,-0.005)-(2100,0.07)],(2010,0.0121),(2020,0.0104),(2040,0.0071),(2060,0.0047\
+		),(2080,0.0033),(2100,0.0025)))
+	~	Dmnl/Year
+	~	Higher 80%
+		United Nations, Department of Economic and Social Affairs, Population Division \
+		(2019). World Population Prospects: The 2019 Revision, DVD Edition.
+		Link	https://population.un.org/wpp2019/Download/Standard/Interpolated/
+	|
+
+Net population growth=
+	Population growth*World population
+	~	MPerson/Year
+	~	Median population growth(Time/1)*World population
+	|
+
+Switch price change=
+	1
+	~	Dmnl
+	~		|
+
+Total vertical migration=
+	SUM(Vertically migrated C[Layers!])
+	~	GtC/Year
+	~		|
+
+Life expectancy mauriculus=
+	2
+	~	Year
+	~	Armstrong & Prosch, 1991
+	|
+
+Growth period mauriculus=
+	1
+	~	Year
+	~	Armstrong & Prosch, 1991
+	|
+
+Living depth mauriculus=
+	350
+	~	m
+	~	Armstrong & Prosch, 1991
+	|
+
+Deep C[L1]= INTEG (
+	Downwelling+Vertically migrated C[L1]-Remineralisation[L1]-Upwelling and mixing from deep\
+		[L1]-Deep C sinking[L1],
+		Initial deep C[L1]) ~~|
+Deep C[MiddleLayers]= INTEG (
+	Deep C sinking[PreviousLayers]+Vertically migrated C[PreviousLayers]-Deep C sinking[\
+		MiddleLayers]-Remineralisation[MiddleLayers]-Upwelling and mixing from deep[MiddleLayers\
+		],
+		Initial deep C[MiddleLayers]) ~~|
+Deep C[L10]= INTEG (
+	Deep C sinking[L9]+Vertically migrated C[L9]-Remineralisation[L10]-Upwelling and mixing from deep\
+		[L10]-Sedimentation of carbon,
+		Initial deep C[L10])
+	~	GtC
+	~	Deep C sinking[L1]+Downwelling+Vertical \
+		migration-Remineralisation[L1]-Upwelling from deep-Sedimentation of carbon
+	|
+
+Vertically migrated C[Layers]=
+	MIN (Surface C/Year*Normalised vector carbon loss by MF[Layers], (1-Fraction grazed C ending up in surface\
+		)*Grazed C by MF
+	*Relative amount of phytoplankton*Normalised vector carbon loss by MF[Layers])
+	~	GtC/Year
+	~	MIN (Surface C/Year, Grazed C by MF)
+		MAX(0,(MIN (Surface C/Year, (1-Fraction grazed C ending up in \
+		surface)*Grazed C by MF)))
+	|
+
+Sediment C= INTEG (
+	Sedimentation of carbon-Weathering of carbon,
+		Initial sediment C)
+	~	GtC
+	~		|
+
+Remineralisation[Layers]=
+	Vertically migrated C[Layers]*(Average depth per layer[Layers]/Depth euphotic zone)^\
+		(-Export efficiency)
+	~	GtC/Year
+	~	Kwon et al
+		
+		DELAY3I( Vertical migration[Layers], Remineralisation delay[Layers],  \
+		Vertical migration[Layers]*(Average depth per layer[Layers]/Depth euphotic \
+		zone)^(-Export efficiency)/Remineralisation delay[Layers])
+	|
+
+Carbon loss at living depth=
+	0.4
+	~	Dmnl
+	~		|
+
+Normalised vector carbon loss by MF[Layers]=
+	ZIDZ(Vector carbon loss by MF[Layers] , SUM( Vector carbon loss by MF[Layers!] ))
+	~	Dmnl
+	~		|
+
+Surface C= INTEG (
+	Oceanic C uptake-Downwelling-Upwelling from surface-SUM(Vertically migrated C[Layers\
+		!]),
+		Initial Surface C)
+	~	GtC
+	~		|
+
+Carbon loss underway=
+	0.04
+	~	Dmnl
+	~	Davison, P., Ohman, M., Hastings, P., Pinkel, R., Powell, F., Koslow, T., \
+		& Graham, J. (2007). Carbon Sequestration by Mesopelagic Fish.
+	|
+
+Vector carbon loss by MF[Layers]=
+	IF THEN ELSE ( Living depth MF > Average depth per layer[Layers] , Carbon loss underway\
+		 , IF THEN ELSE ( Living depth MF = Average depth per layer[Layers] , Carbon loss at living depth\
+		 , 0 ) )
+	~	Dmnl
+	~		|
+
+Harvested fish in Gt delayed=
+	SMOOTH( Harvested fish in Gt,Harvest information delay)
+	~	GtMF/Year
+	~		|
+
+Harvest information delay=
+	3
+	~	Year
+	~		|
+
+Fraction demand to supply fishmeal=
+	Annual fishmeal demand/Harvested fish in Gt delayed
+	~	Dmnl
+	~		|
+
+sum deep C=
+	SUM(Deep C[Layers!])
+	~	GtC
+	~		|
+
+Atmospheric C= INTEG (
+	Anthropogenic fossil fuel use+Microbial respiration and decomposition+Plant respiration and decline of biomass due to changed land use
+	+SUM(Remineralisation[Layers!])+SUM(Upwelling and mixing from deep[Layers!])+Upwelling from surface\
+		+Weathering of carbon-Atmosphere by photosynthesis-Oceanic C uptake,
+		Initial value of carbon in atmosphere)
+	~	GtC
+	~		|
+
+Initial deep C[Layers]= WITH LOOKUP (
+	Average depth per layer[Layers],
+		([(0,0)-(1000,5000)],(125,3000),(200,3150),(300,3300),(400,3450),(500,3600),(600,3750\
+		),(700,3900),(800,4050),(900,4200),(1000,4500) ))
+	~	GtC
+	~	https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2001GB001662
+		Raven et al., 2005
+	|
+
+Average depth per layer[Layers]=
+	125, 175, 250, 350, 450, 550, 650, 750, 850, 950
+	~	m
+	~		|
+
+Average sinking time=
+	380
+	~	Year
+	~	Raven, J., Caldeira, K., Elderfield, H., Hoegh-Guldberg, O., Liss, P., \
+		Riebesell, U. & Watson, A. (2005). Ocean acidification due to increasing \
+		atmospheric carbon dioxide. The Royal Society.
+	|
+
+Sedimentation of carbon=
+	Deep C[L10]/Delay sedimentation
+	~	GtC/Year
+	~		|
+
+Deep C sinking[Layers]=
+	Deep C[Layers]/Average sinking time
+	~	GtC/Year
+	~		|
+
+MiddleLayers:
+	L2,L3,L4,L5,L6,L7,L8,L9
+	~	m
+	~		|
+
+PreviousLayers:
+	L1,L2,L3,L4,L5,L6,L7,L8 -> MiddleLayers
+	~	m
+	~		|
+
+Cubic risk perception= WITH LOOKUP (
+	Change in temperature delayed,
+		([(0,0.4)-(3,1)],(0,0.5),(1,0.51),(2,0.55),(2.5,0.71),(3,1) ))
+	~	Dmnl
+	~	Basic risk perception level
+		(Cubic function at Beckage et al 2018)
+	|
+
+Death due to predation zooplankton=
+	Annual consumption MF*Relative amount of zooplankton
+	~	GtZoo/Year
+	~	Annual consumption MF
+	|
+
+Linear risk perception= WITH LOOKUP (
+	Change in temperature delayed,
+		([(0,0.4)-(3,1)],(0,0.5),(3,1) ))
+	~	Dmnl
+	~	Basic risk perception level
+		(linear function at Beckage et al 2018)
+	|
+
+Effects of food shortage on births zoo= WITH LOOKUP (
+	food shortage zooplankton,
+		([(4,0)-(30,20)],(4,18.2),(9,18.2),(12,18),(12.5,17.5),(13.1,16.5),(13.2,13),(14,0)\
+		 ))
+	~	Dmnl
+	~	([(0,0)-(50,100)],(9,17.7),(12,17),(12.5,15),(13.1,10),(13.2,8),(14,0),(20,\
+		0),(21,0),(23,0),(30,0) )
+	|
+
+Relative profitability MF=
+	Sale price MF/Costs MF
+	~	Dmnl
+	~		|
+
+Relative profitability MF vs regular fish=
+	Relative profitability MF/Relative profitability regular fish
+	~	Dmnl
+	~		|
+
+Costs regular fish=
+	3.39e+11
+	~	$/GtMF
+	~	Prelezzo, 2018
+		&
+		Lynde, C. M. (1981). Economic feasibility of domestic groundfish harvest \
+		from western Alaska waters: a comparison of vessel types, fishing \
+		strategies, and processor locations. Fisheries Bulletin, 79, 303-314.
+	|
+
+Sale price regular fish=
+	3.1e+12
+	~	$/GtMF
+	~	Prellezo, 2018
+	|
+
+Delay weathering=
+	10000
+	~	Year
+	~	educated guess
+		Raven, J., Caldeira, K., Elderfield, H., Hoegh-Guldberg, O., Liss, P., \
+		Riebesell, U., ... & Watson, A. (2005). Ocean acidification due to \
+		increasing atmospheric carbon dioxide. The Royal Society.
+	|
+
+Delay sedimentation=
+	10000
+	~	Year
+	~	Raven, J., Caldeira, K., Elderfield, H., Hoegh-Guldberg, O., Liss, P., \
+		Riebesell, U. & Watson, A. (2005). Ocean acidification due to increasing \
+		atmospheric carbon dioxide. The Royal Society.
+	|
+
+Weathering of carbon=
+	Sediment C/Delay weathering
+	~	GtC/Year
+	~		|
+
+Initial sediment C=
+	3390
+	~	GtC
+	~	390 Brovkin, V., Bendtsen, J., Claussen, M., Ganopolski, A., Kubatzki, C., \
+		Petoukhov, V., & Andreev, A. (2002). Carbon cycle, vegetation, and climate \
+		dynamics in the Holocene: Experiments with the CLIMBER‐2 model. Global \
+		Biogeochemical Cycles, 16(4), 86-1.
+		
+		3000 Shaffer, D. Wallace, K. (2000) Carbon Cycle. Maryland Virtual High \
+		school
+	|
+
+Effort=
+	Capacity specialist fisheries+Capacity mixed MF fisheries
+	~	GtMF/Year
+	~	MIN (Capacity specialist fisheries, Harvesting quota)
+	|
+
+Relative profitability regular fish=
+	Sale price regular fish/Costs regular fish
+	~	Dmnl
+	~	414$/t 545 --> euros 339eur/t
+		https://books.google.nl/books?hl=nl&lr=&id=GYA0cHfbKvgC&oi=fnd&pg=PA303&dq=\
+		fishing+vessel+%22break+even+price%22&ots=6NFZTH1SKk&sig=IEqznyt_Mi_RgP2TwY\
+		komYxHJH8&redir_esc=y#v=onepage&q=fishing%20vessel%20%22break%20even%20pric\
+		e%22&f=false
+	|
+
+Catchability=
+	SWITCH lanternfish to mauriculus*Catchability myctophidae+(1-SWITCH lanternfish to mauriculus\
+		)*Catchability mauriculus
+	~	Dmnl
+	~	IF THEN ELSE(SWITCH lanternfish to mauriculus=1 ,Catchability myctophidae \
+		,Catchability mauriculus )
+	|
+
+Capacity mixed MF fisheries= INTEG (
+	Increase mixed capacity MF-Decrease mixed capacity MF,
+		Initial capacity MF fisheries)
+	~	GtMF/Year
+	~		|
+
+Initial capacity MF fisheries=
+	1*10^-5
+	~	GtMF/Year
+	~		|
+
+Proposed harvesting quota=
+	3
+	~	GtMF/Year
+	~	0.3
+		30% of biomass in status quo (±10gt)
+	|
+
+Adult death due to predation MF=
+	Resolved share of food demand by MF*Consumed adult*Share of adult MF in feed stock*Relative amount of adult MF
+	~	GMF/Year
+	~		|
+
+Mesopelagic fish juvinile= INTEG (
+	Growth larvea-Death due to hunger juvinile MF-Growth juvinile-Harvesting effort juveniles\
+		-Juvinile death due to predation MF,
+		Initial weight juvinile MF/Average weight per juvinile MF)
+	~	GMF
+	~		|
+
+Effects of food shortage on deaths MF= WITH LOOKUP (
+	Food shortage MF,
+		([(10,0)-(50,0.9)],(10,0),(17.5,0),(18,0.4),(20,0.7),(25,0.8),(50,0.9) ))
+	~	1/Year
+	~	([(0,0)-(10,0.7)],(0,0),(1,0.02),(2,0.1),(4,0.3),(5,0.43),(10,0.62) )
+		XIDZ(1,Relative food availability predator, 10)
+	|
+
+Growth juvinile=
+	MAX(0, MIN(Mesopelagic fish juvinile/TIME STEP,DELAY3I(Growth larvea,growth period MF\
+		,Mesopelagic fish juvinile/growth period MF)-Juvinile death due to predation MF-Harvesting effort juveniles\
+		-Death due to hunger juvinile MF))
+	~	GMF/Year
+	~	DELAY3I(Birth larvea-Larvea death due predation,Growth period,Mesopelagic \
+		fish juvinile/Growth period)
+	|
+
+Catchability mauriculus=
+	0.28
+	~	Dmnl
+	~	Armstrong, M. J., & Prosch, R. M. (1991). Abundance and distribution of \
+		the mesopelagic fish Maurolicus muelleri in the southern Benguela system. \
+		South African Journal of Marine Science, 10(1), 13-28.
+	|
+
+Catchability myctophidae=
+	0.14
+	~	Dmnl
+	~	Hidaka et al., 2001
+	|
+
+Costs MF status quo=
+	SWITCH lanternfish to mauriculus*Costs status quo myctophidae+(1-SWITCH lanternfish to mauriculus\
+		)*Costs status quo mauriculus
+	~	$/GtMF
+	~	if 1 then myctophids, if 0 then mauriculus
+	|
+
+Costs status quo mauriculus=
+	3e+11
+	~	$/GtMF
+	~	Assumption + Prellezo, 2018
+	|
+
+Costs status quo myctophidae=
+	4.5e+11
+	~	$/GtMF
+	~	Prelezzo, 2019
+	|
+
+Harvested fish in Gt=
+	Harvesting effort adults*Average weight per adult MF+Harvesting effort juveniles*Average weight per juvinile MF
+	~	GtMF/Year
+	~		|
+
+SWITCH lanternfish to mauriculus=
+	1
+	~	Dmnl
+	~	Fuzzy logic
+		1 for 100% myctophids
+		0 for 100% mauriculus
+		
+		Catul et al., 2011; Proud et al. 2018
+	|
+
+Mesopelagic fish adult= INTEG (
+	Growth juvinile-Adult death due to predation MF-Death due hunger MF adult-Harvesting effort adults\
+		-Natural death rate MF
+,
+		Initial weight adult MF/Average weight per adult MF)
+	~	GMF
+	~		|
+
+Change in temperature delayed=
+	SMOOTH( Temperature rise compared to 1750 , Information delay risk perception)
+	~	°C
+	~		|
+
+Influence industry group= WITH LOOKUP (
+	Relative profitability delayed,
+		([(0,0)-(130,2)],(0,1),(1,1.1),(2,1.2),(3,1.3),(130,1.3) ))
+	~	Dmnl
+	~		|
+
+Relative profitability delayed=
+	SMOOTH(Relative profitability MF ,Information delay risk perception )
+	~	Dmnl
+	~		|
+
+Logistic risk perception climate= WITH LOOKUP (
+	Change in temperature delayed,
+		([(0,0)-(3,1)],(0,0),(0.7,0.4),(1,0.7),(1.5,0.9),(3,1) ))
+	~	Dmnl
+	~	Basic risk perception level
+		(Logistic function at Beckage et al 2018)
+	|
+
+Information delay risk perception=
+	5
+	~	Year
+	~		|
+
+Biomass MF delayed=
+	SMOOTH( Biomass mesopelagic fish, Information delay risk perception)
+	~	GtMF
+	~		|
+
+Risk perception biomass 1= WITH LOOKUP (
+	Biomass MF delayed,
+		([(0,0)-(15,1)],(0,1),(3,0.9),(5,0.8),(8,0.6),(10,0.1),(15,0.1) ))
+	~	Dmnl
+	~	IF THEN ELSE( Change in biomass last two years < 0 , 0.1 , 0 )
+		IF THEN ELSE( Biomass MF < 8 , 0.1 , 0 )
+	|
+
+Relative amount of juvinile MF=
+	Mesopelagic fish juvinile/(Initial weight juvinile MF/Average weight per juvinile MF\
+		)
+	~	Dmnl
+	~		|
+
+Harvesting effort adults=
+	MAX(0,MIN(Mesopelagic fish adult/TIME STEP , MIN(Harvest limit*(1-Fraction juvinile to fish biomass\
+		)/Average weight per adult MF, Relative amount of adult MF*Catchability*(1-Fraction juvinile to fish biomass\
+		)*Effort/Average weight per adult MF)))
+	~	GMF/Year
+	~	FAO http://www.fao.org/3/w6914e/W6914E02.htm#ch2.1
+		
+		MAX(0,MIN(Mesopelagic fish adult/TIME STEP , Relative amount of adult \
+		MF*Catchability*(1-Fraction juvinile to fish biomass)*Effort/Average \
+		weight per adult MF))
+	|
+
+Relative amount of adult MF=
+	Mesopelagic fish adult/(Initial weight adult MF/Average weight per adult MF)
+	~	Dmnl
+	~		|
+
+Juvinile predator= INTEG (
+	Birth rate pred-Growth predator-Juvinile predator death due to hunger,
+		Initial juvinile predator weight/Average weight per juvinile predator)
+	~	GPred
+	~		|
+
+Juvinile predator death due to hunger=
+	Juvinile predator * Effects of food shortage on deaths
+	~	GPred/Year
+	~		|
+
+Growth predator=
+	MAX(0, DELAY3I(Birth rate pred,Growth period predator,Juvinile predator/Growth period predator\
+		)-Juvinile predator death due to hunger)
+	~	GPred/Year
+	~		|
+
+Initial juvinile predator weight=
+	6
+	~	GtPred
+	~	Assumption
+	|
+
+Predator= INTEG (
+	Growth predator-Death due to hunger-Death rate pred,
+		Initial predator weight/Average weight per predator)
+	~	GPred
+	~		|
+
+Average weight per juvinile predator=
+	0.08
+	~	GtPred/GPred
+	~	Assumption; Colossal Squid. (n.d.)
+	|
+
+Growth period predator=
+	3
+	~	Year
+	~	Pauly, 1998
+	|
+
+Food demand predator=
+	Annual consumption predator*(Average weight per predator*Predator+Average weight per juvinile predator\
+		*Juvinile predator)
+	~	GtMF/Year
+	~		|
+
+Effects of food shortage on deaths zoo= WITH LOOKUP (
+	food shortage zooplankton,
+		([(0,0)-(20,0.4)],(0,0),(12,0),(13,0.05),(15,0.28),(17,0.32),(20,0.35) ))
+	~	1/Year
+	~	([(0,0)-(10,0.7)],(0,0),(1,0.1),(2,0.3),(4,0.4),(5,0.43),(10,0.62) )
+	|
+
+food shortage zooplankton=
+	XIDZ ( 1 , Relative food availability zooplankton, High food shortage )
+	~	Dmnl
+	~		|
+
+Death phytoplankton=
+	Annual consumption by zooplankton*Relative amount of phytoplankton
+	~	GtPhyto/Year
+	~	0.26 % per year?
+		Phytoplankton/Death rate phytoplankton
+	|
+
+Annual consumption by zooplankton=
+	Zooplankton*Consumption by zooplankton in bodyweight
+	~	GtPhyto/Year
+	~	gok
+		10-60%, 35% phytoplankton per jaar gegeten door zooplankton
+		https://aslopubs.onlinelibrary.wiley.com/doi/epdf/10.4319/lo.1994.39.3.0508
+	|
+
+Annual consumption MF=
+	Biomass mesopelagic fish*Consumption by MF in bodyweight
+	~	GtZoo/Year
+	~		|
+
+Initial phytoplankton=
+	1
+	~	GtPhyto
+	~	Falkowski, P. (2012). Ocean science: the power of plankton. Nature, \
+		483(7387), S17-S20.
+	|
+
+Consumption by zooplankton in bodyweight=
+	3
+	~	GtPhyto/GtZoo/Year
+	~	Assumption
+	|
+
+Phytoplankton= INTEG (
+	Growth phytoplankton-Death phytoplankton,
+		Initial phytoplankton)
+	~	GtPhyto
+	~		|
+
+Phtyoplankton concentration surface=
+	Phytoplankton/Volume ocean surface
+	~	GtPhyto/m3
+	~		|
+
+Relative amount of zooplankton=
+	MIN(1,MAX(0,Zooplankton/Initial zooplankton))
+	~	Dmnl
+	~		|
+
+Birth zooplankton=
+	Zooplankton/Year*Effects of food shortage on births zoo
+	~	GtZoo/Year
+	~	Zooplankton/Year*Effects of food shortage on births zoo
+		Zooplankton/Turnover time
+	|
+
+Zooplankton= INTEG (
+	Birth zooplankton-Death due to hunger zooplankton-Death due to predation zooplankton\
+		,
+		Initial zooplankton)
+	~	GtZoo
+	~		|
+
+Death due to hunger zooplankton=
+	Zooplankton*Effects of food shortage on deaths zoo
+	~	GtZoo/Year
+	~	Zooplankton*Effects of food shortage on deaths zoo
+	|
+
+Turnover time phytoplankton=
+	0.077
+	~	Year
+	~	Kirchman, D. L., Suzuki, Y., Garside, C., & Ducklow, H. W. (1991). High \
+		turnover rates of dissolved organic carbon during a spring phytoplankton \
+		bloom. Nature, 352(6336), 612-614.
+	|
+
+Relative amount of phytoplankton=
+	MIN(1,MAX(0,Phytoplankton/Initial phytoplankton))
+	~	Dmnl
+	~		|
+
+Influence sunlight on phytoplankton growth 1= WITH LOOKUP (
+	Phtyoplankton concentration surface,
+		([(1e-17,0)-(4e-17,2)],(1.5e-17,1.2),(2.5e-17,1.12),(2.55e-17,1.11),(2.6e-17,1.1),(\
+		2.65e-17,1.05),(2.7e-17,1),(2.75e-17,0.95),(2.8e-17,0.9),(2.9e-17,0.5),(3e-17,0.01)\
+		 ))
+	~	Dmnl
+	~		|
+
+Influence CO2 concentration on pythoplankton growth 1= WITH LOOKUP (
+	C concentration surface,
+		([(1e-14,0)-(2e-14,2)],(1.4e-14,0.1),(1.6e-14,0.9),(1.65e-14,1.05),(1.7e-14,1.15),(\
+		1.9e-14,1.3),(2e-14,1.31) ))
+	~	Dmnl
+	~		|
+
+Natural death rate MF=
+	Mesopelagic fish adult / Life expectancy adult MF
+	~	GMF/Year
+	~	MAX(0,Resolved share of food demand by MF*Consumed adult*Share of adult MF \
+		in feed stock + Mesopelagic fish adult / Life expectancy MF adult)
+	|
+
+Death due hunger MF adult=
+	Mesopelagic fish adult * Effects of food shortage on deaths MF*(1-Fraction juvinile to adult MF\
+		)
+	~	GMF/Year
+	~		|
+
+Effects of food shortage on births MF= WITH LOOKUP (
+	Food shortage MF,
+		([(10,0)-(50,2)],(10,1),(17.5,1),(30,0.2),(50,0) ))
+	~	Dmnl
+	~	([(10,0)-(50,2)],(10,1),(17.5,1),(30,0.2),(50,0.05) )
+	|
+
+Fraction juvinile to adult MF=
+	Mesopelagic fish juvinile/(Mesopelagic fish juvinile+Mesopelagic fish adult)
+	~	Dmnl
+	~		|
+
+Costs MF=
+	Costs MF status quo*Profitability change MF fisheries
+	~	$/GtMF
+	~		|
+
+Profitability change MF fisheries scenario 1= WITH LOOKUP (
+	Time,
+		([(2010,0)-(2100,2)],(2010,1),(2030,0.01),(2060,0.01),(2100,0.01) ))
+	~	Dmnl
+	~	([(2010,0)-(2100,2)],(2010,1),(2030,0.7),(2040,0.4),(2060,0.01),(2100,0.005\
+		) )
+	|
+
+Initial capacity mixed=
+	0.2
+	~	GtMF/Year
+	~	Ghttps://data.worldbank.org/indicator/ER.FSH.PROD.MTk
+	|
+
+Percentage discarded fish=
+	0.08
+	~	Dmnl
+	~		|
+
+Upwelling and mixing from deep[Layers]=
+	Deep C[Layers]/Residence time deep carbon
+	~	GtC/Year
+	~	DELAY3I(Downwelling, Residence time deep carbon, SUM(Deep \
+		C[Layers!])/Residence time deep \
+		carbon)-SUM(Remineralisation[Layers!])-Sedimentation of carbon
+	|
+
+Atmospheric carbon in previous period=
+	DELAY1I(Atmospheric C, Delay in CO2 uptake in ocean, Atmospheric carbon in 2008 )
+	~	GtC
+	~		|
+
+Consumed juviniles=
+	Fraction juvinile to fish biomass*Food demand predator/Average weight per juvinile MF
+	~	GMF/Year
+	~		|
+
+Share of irreplaceable fishmeal=
+	1
+	~	Dmnl
+	~	https://www.iffo.com/system/files/downloads/International%20Aquafeed%20Arti\
+		cle%20Sep%2009.pdf
+	|
+
+Annual fishmeal demand=
+	Annual fish demand*Fishmeal to fish factor*Share of aquaculture*Share of irreplaceable fishmeal
+	~	GtMF/Year
+	~		|
+
+Year=
+	1
+	~	Year
+	~		|
+
+Annual fish demand=
+	Annual fish consumption per capita*World population
+	~	GtMF/Year
+	~		|
+
+Birth rate pred=
+	Predator/Year*Effects of food shortage on births
+	~	GPred/Year
+	~	MAX(0,Predator/Year*Effects of food shortage on births)
+	|
+
+Relative food availability predator=
+	MAX ( Biomass mesopelagic fish/Food demand predator/Year , 0 )
+	~	Dmnl
+	~	+other food sources?
+	|
+
+Sale price MF change due fishmeal shortage 1= WITH LOOKUP (
+	Fraction demand to supply fishmeal,
+		([(0,0)-(4,2)],(0,0.05),(0.2,0.25),(0.65,0.7),(0.9,1),(1.05,1.2),(1.3,1.5),(1.9,1.6\
+		),(2.5,1.65),(4,1.7) ))
+	~	Dmnl
+	~	([(0,0)-(4,2)],(0,0),(0.2,0.15),(0.8,0.6),(0.95,1),(1.05,1.3),(1.3,1.5),(1.9,1.6),(2.\
+		5,1.65),(4,1.7) )
+		
+		([(0,0)-(4,2)],(0,0.65),(0.2,0.7),(0.65,0.8),(0.9,1),(1.05,1.3),(1.3,1.5),(\
+		1.9,1.6),(2.5,1.65),(4,1.7) )
+	|
+
+Planned specialist fisherie capacity= INTEG (
+	Planning new capacity specialist-Building specialist capacity specialist,
+		Initial planned capacity specialist)
+	~	GtMF/Year
+	~		|
+
+Initial planned capacity specialist=
+	0
+	~	GtMF/Year
+	~		|
+
+Building specialist capacity specialist=
+	DELAY3I( Planning new capacity specialist, Specialist capacity building time, Planned specialist fisherie capacity\
+		/Specialist capacity building time )
+	~	GtMF/(Year*Year)
+	~		|
+
+Capacity specialist fisheries= INTEG (
+	Building specialist capacity specialist-Reducing capacity specialist,
+		Initial capacity specialist)
+	~	GtMF/Year
+	~		|
+
+Layers:
+	L1,L2,L3,L4,L5,L6,L7,L8,L9,L10
+	~	m
+	~		|
+
+ppm conversion for ocean=
+	2.1
+	~	GtC/ppm
+	~	https://www.ldeo.columbia.edu/ dmcgee/Carbon/Homework_files/ps2_solns.pdf
+		ldeo.columbia.edu.
+	|
+
+Oceanic C concentration=
+	Surface C/ppm conversion for ocean
+	~	ppm
+	~		|
+
+Time between meeting=
+	2
+	~	Year
+	~		|
+
+Initial capacity specialist=
+	0.5
+	~	GtMF/Year
+	~	Gok
+		1*10^-5
+	|
+
+Specialist capacity building time=
+	5
+	~	Year
+	~	Assumption
+	|
+
+Upwelling delay surface=
+	8
+	~	Year
+	~	Educated guess using: Raven, J., Caldeira, K., Elderfield, H., \
+		Hoegh-Guldberg, O., Liss, P., Riebesell, U. & Watson, A. (2005). Ocean \
+		acidification due to increasing atmospheric carbon dioxide. The Royal \
+		Society.
+	|
+
+Residence time deep carbon=
+	1000
+	~	Year
+	~	Educated guess & Raven, J., Caldeira, K., Elderfield, H., Hoegh-Guldberg, \
+		O., Liss, P., Riebesell, U. & Watson, A. (2005). Ocean acidification due \
+		to increasing atmospheric carbon dioxide. The Royal Society.
+	|
+
+Downwelling water=
+	1.7e+15
+	~	m3/Year
+	~	Educated guess using:
+		Bice, D. (z.d.). Unit 9 Reading. Carleton.Edu. Geraadpleegd op 26 juni \
+		2021, van \
+		https://serc.carleton.edu/integrate/teaching_materials/earth_modeling/stude\
+		nt_materials/unit9_article1.html
+	|
+
+Share of adult MF in feed stock=
+	Mesopelagic fish adult*Average weight per adult MF/ (Biomass mesopelagic fish + Other food sources\
+		)
+	~	Dmnl
+	~		|
+
+Other food sources=
+	2
+	~	GtMF
+	~	Gok
+	|
+
+Share of juvinile MF in feed stock=
+	Mesopelagic fish juvinile*Average weight per juvinile MF / (Biomass mesopelagic fish\
+		 + Other food sources)
+	~	Dmnl
+	~		|
+
+C concentration surface=
+	Surface C/Volume ocean surface
+	~	GtC/m3
+	~	/Correction concentration
+	|
+
+Volume ocean surface=
+	Depth euphotic zone*cubic meters correction*Surface ocean
+	~	m3
+	~		|
+
+Food provision by MF=
+	Harvested fish in Gt/Fishmeal to fish factor
+	~	GtMF/Year
+	~		|
+
+Annual fish consumption per capita=
+	1.7e-05
+	~	GtMF/MPerson/Year
+	~	Gossard, 2004
+	|
+
+Transfer velocity for GtC per year=
+	1.12169
+	~	Dmnl
+	~	Bender, M. L., Kinter, S., Cassar, N., & Wanninkhof, R. (2011). Evaluating \
+		gas transfer velocity parameterizations using upper ocean radon \
+		distributions. Journal of Geophysical Research: Oceans, 116(C2).
+	|
+
+Unit correction m3=
+	1
+	~	GtC/Year/ppm
+	~		|
+
+Atmospheric concentration per m3=
+	Atmospheric C/Total atmospheric volume
+	~	GtC/m3
+	~		|
+
+Total atmospheric volume=
+	3.99e+18
+	~	m3
+	~	Kwon & Schnoor, 1994
+	|
+
+Surface ocean=
+	3.63e+14
+	~	m2
+	~	Kwon, 1994
+	|
+
+cubic meters correction=
+	1
+	~	m3/m/m2
+	~		|
+
+Initial zooplankton=
+	4
+	~	GtZoo
+	~	Educated guess using:
+		Falkowski, P. (2012). Ocean science: the power of plankton. Nature, \
+		483(7387), S17-S20.
+	|
+
+Export efficiency=
+	0.97
+	~	Dmnl
+	~	Kwon et al., 2009
+	|
+
+Depth euphotic zone=
+	100
+	~	m
+	~	Kwon et al 2009
+	|
+
+Consumption by MF in bodyweight=
+	7
+	~	GtZoo/GtMF/Year
+	~	Koz, 1995
+	|
+
+Resolved share of food demand by MF=
+	Biomass mesopelagic fish / (Biomass mesopelagic fish + Other food sources)
+	~	Dmnl
+	~	Biomass MF / Administration time  / Food demand predator
+	|
+
+Fraction juvinile to fish biomass=
+	Mesopelagic fish juvinile*Average weight per juvinile MF/(Mesopelagic fish adult*Average weight per adult MF\
+		+Mesopelagic fish juvinile*Average weight per juvinile MF)
+	~	Dmnl
+	~		|
+
+Death due to hunger=
+	Predator * Effects of food shortage on deaths
+	~	GPred/Year
+	~	MAX(0,Predator * Effects of food shortage on deaths)
+	|
+
+Biomass mesopelagic fish=
+	(Mesopelagic fish adult*Average weight per adult MF)+(Mesopelagic fish juvinile*Average weight per juvinile MF\
+		)
+	~	GtMF
+	~		|
+
+Consumed adult=
+	(1-Fraction juvinile to fish biomass)*Food demand predator/Average weight per adult MF
+	~	GMF/Year
+	~		|
+
+Average weight per juvinile MF=
+	7e-08
+	~	GtMF/GMF
+	~	Karuppasamy & Menon, 2008
+	|
+
+Effects of food shortage on births= WITH LOOKUP (
+	XIDZ ( 1 , Relative food availability predator , High food shortage predators ),
+		([(0,0)-(12,10)],(0,6),(0.5,4),(1,2),(2,1.5),(4,0.95),(7,0.7),(8,0.5),(10,0.2),(12,\
+		0) ))
+	~	Dmnl
+	~	([(0,0)-(10,10)],(0,6),(0.5,4),(1,2),(2,1.5),(4,0.95),(7,0.9),(8,0.7),(10,0\
+		.52) )
+	|
+
+Death rate pred=
+	Predator/Predator life expectancy
+	~	GPred/Year
+	~	MAX(0,Predator/Year*Effects of food shortage on births)
+	|
+
+Survived larvea=
+	147
+	~	Dmnl
+	~	Dalpadado, 1988 + Assumption
+	|
+
+Average weight per adult MF=
+	1e-06
+	~	GtMF/GMF
+	~	Karuppasamy \& Menon, 2008
+	|
+
+Initial predator weight=
+	4
+	~	GtPred
+	~	Assumption
+	|
+
+Average weight per predator=
+	0.3
+	~	GtPred/GPred
+	~	Assumption; Colossal Squid. (n.d.)
+	|
+
+Annual consumption predator=
+		1.6
+	~	GtMF/Year/GtPred
+	~		|
+
+Female fraction=
+	0.515
+	~	Dmnl
+	~	Dalpadado, P. (1988). Reproductive biology of the lanternfish Benthosema \
+		pterotum from the Indian Ocean. Marine Biology, 98(3), 307-316.
+	|
+
+Predator life expectancy=
+	6
+	~	Year
+	~	Pauly, D. (1998). Why squid, though not fish, may be better understood by \
+		pretending they are. South African Journal of Marine Science, 20(1), 47-58.
+	|
+
+C content copepods=
+	0.51
+	~	GtC/GtZoo
+	~	Omori, M. (1969). Weight and chemical composition of some important \
+		oceanic zooplankton in the North Pacific Ocean. Marine Biology, 3(1), 4-10.
+	|
+
+Grazing in surface by MF=
+	0.4
+	~	Dmnl
+	~	Anderson et al., 2019
+	|
+
+Fishmeal to fish factor=
+	4
+	~	Dmnl
+	~	StJohns et al., 2020
+	|
+
+Afforestation and reforestation uptake=
+	0
+	~	GtC/Year
+	~		|
+
+Amount of C from permafrost=
+	0.26
+	~	GtC/Year
+	~	Carbon leakage by permafrost (Desouza & Flanery, 2013)
+	|
+
+Amount of carbon in soil=
+	2300
+	~	GtC
+	~		|
+
+Anthropogenic fossil fuel use=
+	Average carbon content of the GWP*GWP from fossil energy/unit correction year
+	~	GtC/Year
+	~	Average carbon content of the GWP*GWP from fossil energy*Fossil \
+		Carbon/unit correction GtCyear
+	|
+
+Atmosphere by photosynthesis=
+	Biomass potential*Normal relative uptake of carbon by biomass+Afforestation and reforestation uptake
+	~	GtC/Year
+	~	123 original
+	|
+
+Atmospheric carbon in 2008=
+	788.5
+	~	GtC
+	~		|
+
+Atmospheric CO2 concentration=
+	Atmospheric C/Conversion factor to ppm
+	~	ppm
+	~		|
+
+Autonomous GWP per capita growth=
+	0.015
+	~	1/Year
+	~		|
+
+Average carbon content of the GWP=
+	1.25418/1e+07
+	~	GtC/MDollar
+	~		|
+
+Average renewable growth=
+	Base case average renewable growth
+	~	1/Year
+	~		|
+
+Base case average renewable growth=
+	0.05
+	~	1/Year
+	~		|
+
+Biomass= INTEG (
+	Atmosphere by photosynthesis-Net terrestrial uptake-Plant respiration and decline of biomass due to changed land use\
+		,
+		Initial value of biomass)
+	~	GtC
+	~		|
+
+Biomass potential=
+	(1-Relative increase in anthropogenic land use)*Increased biomass uptaken by CO2 concentration\
+		*Initial value of biomass
+	~	GtC
+	~		|
+
+CO2 concentration in 1750=
+	280
+	~	ppm
+	~		|
+
+Conversion factor to ppm=
+	2.0619
+	~	GtC/ppm
+	~	IPCC, 2001
+	|
+
+Delay in CO2 uptake in ocean=
+	2
+	~	Year
+	~		|
+
+Delay on carbon respiration due to changed land use=
+	200
+	~	Year
+	~		|
+
+Delay on terrestrial uptake of biomass=
+	9.2
+	~	Year
+	~		|
+
+Fossil Carbon= INTEG (
+	-Anthropogenic fossil fuel use,
+		Initial value of fossil carbon)
+	~	GtC
+	~		|
+
+GDP per capita growth=
+	Autonomous GWP per capita growth*GWP per capita
+	~	MDollar/(Year*MPerson)
+	~		|
+
+Growth of renewable energy share=
+	Average renewable growth*Renewable energy growth potential*Renewable share
+	~	1/Year
+	~		|
+
+GWP=
+	World population*GWP per capita
+	~	MDollar
+	~		|
+
+GWP from fossil energy=
+	(1-Renewable share)*GWP
+	~	MDollar
+	~		|
+
+GWP per capita= INTEG (
+	GDP per capita growth,
+		Initial GWP per capita)
+	~	MDollar/MPerson
+	~		|
+
+Impact of population growth on land use increase=
+	0.2
+	~	Dmnl
+	~		|
+
+Increased biomass uptaken by CO2 concentration=
+	LOOKUP biomass(Atmospheric CO2 concentration/CO2 concentration in 1750)
+	~	Dmnl
+	~	IF THEN ELSE(Atmospheric CO2 concentration/CO2 concentration in 1750 = 1, \
+		1 , RAMP( 1/3, 1 , 4 ))
+	|
+
+Initial GWP per capita=
+	11250
+	~	MDollar/MPerson
+	~		|
+
+Initial Surface C=
+	600
+	~	GtC
+	~	Raven et al., 2005
+	|
+
+Initial relative carbon respiration by changed land use=
+	0.0006
+	~	1/Year
+	~		|
+
+Initial value for renewable share=
+	0.08
+	~	Dmnl
+	~		|
+
+Initial value of biomass=
+	550
+	~	GtC
+	~		|
+
+Initial value of carbon in atmosphere=
+	800
+	~	GtC
+	~		|
+
+Initial value of fossil carbon=
+	10000
+	~	GtC
+	~	Raven, J., Caldeira, K., Elderfield, H., Hoegh-Guldberg, O., Liss, P., \
+		Riebesell, U., ... & Watson, A. (2005). Ocean acidification due to \
+		increasing atmospheric carbon dioxide. The Royal Society.
+	|
+
+Initial value of world population=
+	6933
+	~	MPerson
+	~		|
+
+LOOKUP biomass(
+	(1,1),(4,2))
+	~	Dmnl
+	~		|
+
+Maximum renewable share=
+	1
+	~	Dmnl
+	~		|
+
+Microbial respiration and decomposition=
+	(Soil/Normal lifespan of soil carbon)+(Soil*Soil carbon respiration due to changed land use\
+		)-Soil carbon sequestration+SCENARIO Permafrost
+	~	GtC/Year
+	~		|
+
+Net terrestrial uptake=
+	Biomass/Delay on terrestrial uptake of biomass
+	~	GtC/Year
+	~	original as 60
+	|
+
+Normal lifespan of soil carbon=
+	39
+	~	Year
+	~		|
+
+Normal relative uptake of carbon by biomass=
+	0.22
+	~	Dmnl/Year
+	~	original: 0.22
+	|
+
+Original share of anthropogenic land use=
+	0.5
+	~	Dmnl
+	~		|
+
+Plant respiration and decline of biomass due to changed land use=
+	Biomass*(Relative CO2 respiration by biomass+Relative decrease in biomass by changing land use\
+		)
+	~	GtC/Year
+	~	60 as original
+	|
+
+Relative CO2 respiration by biomass=
+	0.11
+	~	Dmnl/Year
+	~		|
+
+Relative decrease in biomass by changing land use=
+	Impact of population growth on land use increase*Original share of anthropogenic land use\
+		*Population growth
+	~	Dmnl/Year
+	~		|
+
+Relative increase in anthropogenic land use=
+	(World population/Initial value of world population)*Original share of anthropogenic land use\
+		*Impact of population growth on land use increase
+	~	Dmnl
+	~		|
+
+Renewable energy growth potential=
+	Maximum renewable share-Renewable share
+	~	Dmnl
+	~		|
+
+Renewable share= INTEG (
+	Growth of renewable energy share,
+		Initial value for renewable share)
+	~	Dmnl
+	~		|
+
+SCENARIO Permafrost=
+	Amount of C from permafrost
+	~	GtC/Year
+	~		|
+
+Soil= INTEG (
+	Net terrestrial uptake-Microbial respiration and decomposition,
+		Amount of carbon in soil)
+	~	GtC
+	~		|
+
+Soil carbon respiration due to changed land use=
+	DELAY3I(Relative decrease in biomass by changing land use, Delay on carbon respiration due to changed land use\
+		, Initial relative carbon respiration by changed land use )
+	~	1/Year
+	~		|
+
+Soil carbon sequestration=
+	 0
+	~	GtC/Year
+	~		|
+
+Temperature rise compared to 1750=
+	Temperature rise per ppm of CO2*(Atmospheric CO2 concentration-CO2 concentration in 1750\
+		)
+	~	°C
+	~		|
+
+Temperature rise per ppm of CO2=
+	0.007
+	~	°C/ppm
+	~		|
+
+unit correction year=
+	1
+	~	Year
+	~		|
+
+World population= INTEG (
+	Net population growth,
+		Initial value of world population)
+	~	MPerson
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 2100
+	~	Year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 2010
+	~	Year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	Year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.0078125
+	~	Year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Predator prey & carbon cycle submodels
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|255-255-255|72,72,55,0
+10,1,Atmospheric C,775,-1883,620,63,3,131,0,18,0,0,0,0,-1--1--1,0-0-0,|12|I|255-128-0,0,0,0,0,0,0
+10,2,Initial value of carbon in atmosphere,1055,-2005,73,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,3,2,1,1,0,0,0,0,128,1,-1--1--1,,1|(889,-1963)|
+10,4,Fossil Carbon,815,-651,91,27,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,5,Initial value of fossil carbon,983,-587,52,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,6,5,4,1,0,0,0,0,128,1,-1--1--1,,1|(905,-645)|
+1,7,9,1,4,0,0,22,0,0,0,-1--1--1,,1|(751,-1340)|
+1,8,9,4,100,0,0,22,0,0,0,-1--1--1,,1|(751,-765)|
+11,9,7306,751,-859,11,7,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,10,Anthropogenic fossil fuel use,793,-859,52,21,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,11,Biomass,2009,-1889,68,20,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,12,14,11,4,0,0,22,0,0,0,-1--1--1,,1|(1792,-1873)|
+1,13,14,1,100,0,0,22,0,0,0,-1--1--1,,1|(1512,-1873)|
+11,14,7108,1631,-1873,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,15,Atmosphere by photosynthesis,1631,-1835,53,21,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,16,Initial value of biomass,1991,-1813,79,11,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,17,19,1,4,0,0,22,0,0,0,-1--1--1,,1|(775,-2187)|
+1,18,19,11,100,0,0,22,0,0,0,-1--1--1,,1|(1961,-2040)|
+11,19,7152,1961,-2187,7,11,34,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,20,Plant respiration and decline of biomass due to changed land use,2063,-2187,97,28,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,21,Soil,2425,-1461,59,23,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,22,24,21,4,0,0,22,0,0,0,-1--1--1,,1|(2425,-1899)|
+1,23,24,11,100,0,0,22,0,0,0,-1--1--1,,1|(2135,-1899)|
+11,24,7614,2199,-1899,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,25,Net terrestrial uptake,2199,-1867,71,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,26,Amount of carbon in soil,2553,-1531,48,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,27,26,21,1,0,0,0,0,128,1,-1--1--1,,1|(2521,-1483)|
+1,28,30,1,4,0,0,22,2,64,0,-1--1--1,|12||0-0-0,1|(775,-1451)|
+1,29,30,21,100,0,0,22,0,0,0,-1--1--1,,1|(1956,-1451)|
+11,30,6866,1535,-1451,7,11,34,131,0,0,1,0,0,0,0,0,0,0,0,0
+10,31,Microbial respiration and decomposition,1535,-1429,73,21,40,3,0,2,-1,0,0,0,-1--1--1,0-0-0,|12||255-255-255,0,0,0,0,0,0
+10,32,World population,2127,-1019,59,21,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,33,Initial value of world population,2281,-1045,59,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,34,33,32,0,0,0,0,0,128,1,-1--1--1,,1|(2209,-1033)|
+12,35,48,1833,-1019,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,36,38,32,4,0,0,22,0,0,0,-1--1--1,,1|(2020,-1019)|
+1,37,38,35,100,0,0,22,0,0,0,-1--1--1,,1|(1900,-1019)|
+11,38,48,1961,-1019,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,39,Net population growth,1961,-997,76,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,40,Median population growth,2041,-1163,63,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,41,GWP per capita,2143,-811,60,16,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,42,48,1913,-811,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,43,45,41,4,0,0,22,0,0,0,-1--1--1,,1|(2052,-811)|
+1,44,45,42,100,0,0,22,0,0,0,-1--1--1,,1|(1964,-811)|
+11,45,48,2015,-811,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,46,GDP per capita growth,2015,-779,80,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,47,Initial GWP per capita,2255,-859,75,11,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,48,47,41,0,0,0,0,0,128,1,-1--1--1,,1|(2209,-836)|
+10,49,Autonomous GWP per capita growth,1855,-859,65,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,50,49,45,1,0,0,0,0,128,0,-1--1--1,,1|(1977,-843)|
+1,51,41,45,1,0,0,0,0,128,0,-1--1--1,,1|(2057,-849)|
+10,52,GWP,1895,-939,21,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,53,32,52,1,0,0,0,0,128,0,-1--1--1,,1|(2047,-955)|
+1,54,41,52,1,0,0,0,0,128,0,-1--1--1,,1|(2009,-923)|
+10,55,Renewable share,2127,-539,57,16,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,56,Initial value for renewable share,2271,-597,59,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,57,56,55,0,0,0,0,0,128,1,-1--1--1,,1|(2200,-567)|
+12,58,48,1897,-539,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,59,61,55,4,0,0,22,0,0,0,-1--1--1,,1|(2019,-539)|
+1,60,61,58,100,0,0,22,0,0,0,-1--1--1,,1|(1929,-539)|
+11,61,48,1961,-539,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,62,Growth of renewable energy share,1961,-513,60,28,40,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,63,Average renewable growth,1945,-379,64,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,64,Renewable energy growth potential,1897,-625,64,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,65,63,62,0,0,0,0,0,128,0,-1--1--1,,1|(1952,-437)|
+1,66,64,61,1,0,0,0,0,128,0,-1--1--1,,1|(1935,-571)|
+10,67,Maximum renewable share,1753,-683,59,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,68,55,64,1,0,0,0,0,128,0,-1--1--1,,1|(1999,-635)|
+1,69,67,64,1,0,0,0,0,128,0,-1--1--1,,1|(1839,-683)|
+10,70,GWP from fossil energy,1647,-827,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,71,52,70,1,0,0,0,0,128,0,-1--1--1,,1|(1871,-939)|
+1,72,55,70,1,0,0,0,0,128,0,-1--1--1,,1|(1961,-715)|
+1,73,70,10,1,0,0,0,0,128,0,-1--1--1,,1|(1221,-840)|
+10,74,Average carbon content of the GWP,903,-949,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,75,74,10,1,0,0,0,0,128,0,-1--1--1,,1|(832,-913)|
+10,76,Atmospheric carbon in previous period,345,-2133,71,21,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+10,77,Delay in CO2 uptake in ocean,128,-2133,55,21,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+10,78,Atmospheric carbon in 2008,185,-2219,52,21,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+1,79,78,76,1,1,0,0,0,128,0,-1--1--1,,1|(255,-2219)|
+1,80,77,76,1,1,0,0,0,128,0,-1--1--1,,1|(207,-2149)|
+1,81,1,76,1,1,0,0,0,128,0,-1--1--1,,1|(487,-1963)|
+10,82,Atmospheric CO2 concentration,697,-2219,63,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,83,Conversion factor to ppm,911,-2251,57,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,84,1,82,1,0,0,0,0,128,0,-1--1--1,,1|(695,-2129)|
+10,85,Temperature rise compared to 1750,761,-2325,64,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,86,Temperature rise per ppm of CO2,943,-2363,71,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,87,CO2 concentration in 1750,655,-2353,65,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,88,82,85,0,0,0,0,0,128,0,-1--1--1,,1|(725,-2267)|
+1,89,87,85,1,0,0,0,0,128,0,-1--1--1,,1|(729,-2363)|
+1,90,86,85,1,0,0,0,0,128,0,-1--1--1,,1|(823,-2353)|
+10,91,Normal relative uptake of carbon by biomass,1439,-1813,79,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,92,91,15,1,0,0,0,0,128,0,-1--1--1,,1|(1577,-1851)|
+10,93,Biomass potential,1865,-1819,60,11,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,94,93,15,0,0,0,0,0,128,0,-1--1--1,,1|(1752,-1824)|
+10,95,Relative increase in anthropogenic land use,1769,-1755,79,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,96,Increased biomass uptaken by CO2 concentration,2009,-1691,63,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,97,83,82,1,0,0,0,0,128,0,-1--1--1,,1|(783,-2241)|
+1,98,32,38,1,0,0,0,0,128,0,-1--1--1,,1|(2057,-1051)|
+10,99,Impact of population growth on land use increase,1871,-1547,75,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,100,Original share of anthropogenic land use,1895,-1611,80,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,101,99,95,1,0,0,0,0,128,0,-1--1--1,,1|(1785,-1627)|
+1,102,100,95,1,0,0,0,0,128,0,-1--1--1,,1|(1855,-1627)|
+10,103,Relative CO2 respiration by biomass,2175,-2341,48,28,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,104,Relative decrease in biomass by changing land use,2175,-1537,75,28,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,105,103,20,1,0,0,0,0,128,0,-1--1--1,,1|(2169,-2267)|
+1,106,11,20,1,0,0,0,0,128,0,-1--1--1,,1|(2036,-2029)|
+1,107,100,104,1,0,0,0,0,128,0,-1--1--1,,1|(2057,-1611)|
+1,108,99,104,1,0,0,0,0,128,0,-1--1--1,,1|(2039,-1585)|
+1,109,11,24,1,0,0,0,0,128,0,-1--1--1,,1|(2169,-1915)|
+10,110,Delay on terrestrial uptake of biomass,2281,-1957,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,111,110,24,1,0,0,0,0,128,0,-1--1--1,,1|(2255,-1915)|
+1,112,21,31,1,0,0,0,0,128,0,-1--1--1,,1|(1991,-1445)|
+10,113,Normal lifespan of soil carbon,1367,-1403,65,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,114,113,31,0,0,0,0,0,128,0,-1--1--1,,1|(1444,-1412)|
+10,115,Soil carbon respiration due to changed land use,1511,-1525,85,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,116,115,30,0,0,0,0,0,128,0,-1--1--1,,1|(1523,-1485)|
+1,117,104,115,1,0,0,0,0,128,0,-1--1--1,,1|(1903,-1489)|
+10,118,Initial relative carbon respiration by changed land use,1353,-1611,79,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,119,118,115,1,0,0,0,0,128,0,-1--1--1,,1|(1433,-1617)|
+10,120,Delay on carbon respiration due to changed land use,1231,-1515,60,28,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,121,120,115,1,0,0,0,0,128,0,-1--1--1,,1|(1359,-1563)|
+1,122,16,11,1,0,0,0,0,128,1,-1--1--1,,1|(2057,-1861)|
+1,123,95,93,0,0,0,0,0,128,0,-1--1--1,,1|(1820,-1789)|
+1,124,96,93,1,0,0,0,0,128,0,-1--1--1,,1|(1929,-1755)|
+1,125,16,93,1,0,0,0,0,128,0,-1--1--1,,1|(1919,-1851)|
+10,126,LOOKUP biomass,2197,-1797,64,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,127,126,96,1,0,0,0,0,64,0,-1--1--1,,1|(2124,-1752)|
+10,128,Time,2023,-1221,28,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,129,unit correction year,969,-805,65,11,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,130,129,10,1,0,0,0,0,128,0,-1--1--1,,1|(895,-811)|
+10,131,Base case average renewable growth,1871,-283,63,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,132,131,63,0,0,0,0,0,128,0,-1--1--1,,1|(1904,-324)|
+10,133,Afforestation and reforestation uptake,1159,-1723,69,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,134,133,15,1,0,0,0,0,128,0,-1--1--1,,1|(1561,-1787)|
+10,135,Soil carbon sequestration,1465,-1329,48,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,136,135,31,0,0,0,0,0,128,0,-1--1--1,,1|(1496,-1372)|
+10,137,Relative decrease in biomass by changing land use,1935,-2347,73,28,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,138,Initial value of world population,1689,-1643,64,21,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,139,World population,1561,-1697,68,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,140,139,95,0,0,0,0,0,128,0,-1--1--1,,1|(1644,-1720)|
+1,141,138,95,0,0,0,0,0,128,0,-1--1--1,,1|(1725,-1692)|
+1,142,137,20,1,0,0,0,0,128,0,-1--1--1,,1|(2025,-2273)|
+10,143,CO2 concentration in 1750,2345,-1723,71,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,144,Atmospheric CO2 concentration,2336,-1813,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,145,143,96,1,0,0,0,0,128,0,-1--1--1,,1|(2201,-1691)|
+1,146,144,96,1,0,0,0,0,128,0,-1--1--1,,1|(2191,-1749)|
+1,147,55,61,1,0,0,0,0,128,0,-1--1--1,,1|(2009,-587)|
+10,148,Surface C,-551,-1861,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,149,151,148,4,0,0,22,0,0,0,-1--1--1,,1|(-351,-1883)|
+1,150,151,1,100,0,0,22,0,0,0,-1--1--1,,1|(-13,-1883)|
+11,151,1828,-193,-1883,11,11,34,3,0,0,3,0,0,0,0,0,0,0,0,0
+10,152,Oceanic C uptake,-193,-1899,60,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,153,Initial Surface C,-489,-1979,59,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,154,153,148,0,0,0,0,0,64,1,-1--1--1,,1|(-513,-1932)|
+10,155,Mesopelagic fish adult,25,421,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,156,48,319,395,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,157,159,156,4,0,0,22,0,0,0,-1--1--1,,1|(260,395)|
+1,158,159,155,100,0,0,22,0,0,0,-1--1--1,,1|(133,395)|
+11,159,48,199,395,11,11,34,3,0,0,3,0,0,0,0,0,0,0,0,0
+10,160,Natural death rate MF,199,367,57,17,40,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,161,Initial weight adult MF,-41,287,43,21,8,131,0,0,-1,0,0,0,0,0,0,0,0,0
+1,162,161,155,1,0,0,0,0,64,1,-1--1--1,,1|(-12,348)|
+10,163,Deep C,-545,-1473,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,164,Initial deep C,-663,-1525,47,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,165,164,163,0,0,0,0,0,64,1,-1--1--1,,1|(-620,-1507)|
+10,166,C content copepods,-729,-1873,43,21,8,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,167,Food provision by MF,1055,597,52,21,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|I|255-128-0,0,0,0,0,0,0
+10,168,Fishmeal to fish factor,1151,533,75,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,169,168,167,1,0,0,0,0,64,0,-1--1--1,,1|(1103,587)|
+10,170,Fraction of migrating MF constant,-1255,-1941,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,171,Grazing in surface by MF,-1065,-1899,57,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,172,Predator,-71,-571,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,173,48,-505,-571,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,174,176,512,4,0,0,22,0,0,0,-1--1--1,,1|(-393,-571)|
+1,175,176,173,100,0,0,22,0,0,0,-1--1--1,,1|(-473,-571)|
+11,176,48,-439,-571,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,177,Birth rate pred,-439,-555,49,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,178,48,239,-549,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,179,181,178,4,0,0,22,0,0,0,-1--1--1,,1|(173,-549)|
+1,180,181,172,100,0,0,22,0,0,0,-1--1--1,,1|(37,-549)|
+11,181,48,103,-549,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,182,Death rate pred,103,-523,52,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,183,Predator life expectancy,231,-469,44,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,184,183,182,1,0,0,0,0,128,0,-1--1--1,,1|(175,-517)|
+10,185,Consumed adult,-151,-91,55,11,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,186,172,176,1,0,0,0,0,128,0,-1--1--1,,1|(-295,-763)|
+1,187,172,182,1,0,0,0,0,128,0,-1--1--1,,1|(23,-523)|
+1,188,190,1,4,0,0,22,0,0,0,-1--1--1,,1|(281,-1660)|
+1,189,190,163,100,0,0,22,0,0,0,-1--1--1,,1|(-111,-1489)|
+11,190,5414,281,-1489,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,191,Remineralisation,281,-1477,60,1,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,192,48,25,667,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,193,195,192,4,0,0,22,0,0,0,-1--1--1,,1|(25,629)|
+1,194,195,155,100,0,0,22,0,0,0,-1--1--1,,1|(25,512)|
+11,195,48,25,587,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,196,Harvesting effort adults,119,587,53,21,40,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,197,Mesopelagic fish juvinile,-377,421,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,198,200,155,4,0,0,22,0,0,0,-1--1--1,,1|(-105,421)|
+1,199,200,197,100,0,0,22,0,0,0,-1--1--1,,1|(-264,421)|
+11,200,354,-193,421,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,201,Growth juvinile,-193,437,53,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,202,48,-647,421,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,203,205,197,4,0,0,22,0,0,0,-1--1--1,,1|(-484,421)|
+1,204,205,202,100,0,0,22,0,0,0,-1--1--1,,1|(-601,421)|
+11,205,48,-553,421,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,206,Growth larvea,-553,447,49,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,207,Initial weight juvinile MF,-489,347,43,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,208,207,197,1,0,0,0,0,64,1,-1--1--1,,1|(-464,389)|
+10,209,growth period MF,-185,373,47,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,210,48,-433,155,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,211,213,210,4,0,0,22,0,0,0,-1--1--1,,1|(-433,208)|
+1,212,213,197,100,0,0,22,0,0,0,-1--1--1,,1|(-433,421)|
+11,213,48,-433,261,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,214,Juvinile death due to predation MF,-343,261,75,21,40,3,0,4,-1,0,0,0,-1--1--1,255-255-255,|12||0-0-0,0,0,0,0,0,0
+1,215,155,206,1,0,0,0,0,128,0,-1--1--1,,1|(-273,485)|
+10,216,Consumed juviniles,-305,-11,69,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,217,Fraction juvinile to fish biomass,-169,171,65,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,218,217,216,1,0,0,0,0,128,0,-1--1--1,,1|(-273,43)|
+1,219,217,185,1,0,0,0,0,128,0,-1--1--1,,1|(-192,31)|
+10,220,Annual consumption predator,-545,-427,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,221,206,201,1,0,0,0,0,64,0,-1--1--1,,1|(-473,459)|
+1,222,209,200,0,0,0,0,0,64,0,-1--1--1,,1|(-188,396)|
+1,223,214,200,1,0,0,0,0,64,0,-1--1--1,,1|(-313,335)|
+1,224,197,201,1,0,0,0,0,64,0,-1--1--1,,1|(-297,437)|
+10,225,Biomass mesopelagic fish,-673,-193,59,21,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|I|255-128-0,0,0,0,0,0,0
+10,226,Life expectancy adult MF,393,341,59,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,227,Food demand predator,-457,-475,76,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,228,172,227,1,0,0,0,0,128,0,-1--1--1,,1|(-137,-437)|
+10,229,Relative food availability predator,-825,-587,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,230,227,229,1,0,0,0,0,128,0,-1--1--1,,1|(-649,-571)|
+1,231,225,229,1,0,0,0,0,128,0,-1--1--1,,1|(-745,-497)|
+1,232,220,227,1,0,0,0,0,128,0,-1--1--1,,1|(-505,-443)|
+10,233,Average weight per predator,-135,-315,63,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,234,233,172,1,0,0,0,0,64,1,-1--1--1,,1|(-81,-433)|
+10,235,Initial predator weight,7,-635,75,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,236,235,172,0,0,0,0,0,64,1,-1--1--1,,1|(-16,-613)|
+10,237,Average weight per adult MF,16,-1,69,21,8,3,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|I|0-0-0,0,0,0,0,0,0
+1,238,237,155,1,0,0,0,0,64,1,-1--1--1,,1|(-97,197)|
+10,239,Average weight per adult MF,-817,-123,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,240,239,225,1,0,0,0,0,128,0,-1--1--1,,1|(-775,-171)|
+10,241,Effects of food shortage on births,-617,-705,64,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,242,229,241,1,0,0,0,0,128,0,-1--1--1,,1|(-737,-667)|
+1,243,241,176,1,0,0,0,0,128,0,-1--1--1,,1|(-519,-657)|
+10,244,Effects of food shortage on deaths,-113,-827,64,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,245,229,244,1,0,0,0,0,64,0,-1--1--1,,1|(-449,-897)|
+1,246,244,250,1,0,0,0,0,128,0,-1--1--1,,1|(-25,-779)|
+12,247,48,239,-593,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,248,250,247,4,0,0,22,0,0,0,-1--1--1,,1|(193,-593)|
+1,249,250,172,100,0,0,22,0,0,0,-1--1--1,,1|(57,-593)|
+11,250,48,143,-593,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,251,Death due to hunger,143,-571,68,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,252,172,250,1,0,0,0,0,64,0,-1--1--1,,1|(31,-603)|
+10,253,Average weight per juvinile MF,-225,325,63,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,254,253,197,0,0,0,0,0,64,1,-1--1--1,,1|(-291,367)|
+10,255,Average weight per juvinile MF,-553,-5,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,256,255,225,1,0,0,0,0,128,0,-1--1--1,,1|(-617,-123)|
+1,257,255,216,1,0,0,0,0,128,0,-1--1--1,,1|(-433,-43)|
+1,258,237,185,1,0,0,0,0,64,0,-1--1--1,,1|(-48,-69)|
+1,259,227,216,1,0,0,0,0,128,0,-1--1--1,,1|(-380,-247)|
+1,260,227,185,1,0,0,0,0,128,0,-1--1--1,,1|(-307,-284)|
+1,261,253,217,1,0,0,0,0,128,0,-1--1--1,,1|(-217,261)|
+1,262,237,217,1,0,0,0,0,128,0,-1--1--1,,1|(-137,85)|
+1,263,233,227,1,0,0,0,0,128,0,-1--1--1,,1|(-353,-379)|
+1,264,155,217,1,0,0,0,0,64,0,-1--1--1,,1|(-121,293)|
+1,265,197,217,1,0,0,0,0,64,0,-1--1--1,,1|(-321,319)|
+10,266,Resolved share of food demand by MF,-551,-235,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,267,225,266,0,0,0,0,0,128,0,-1--1--1,,1|(-617,-211)|
+1,268,216,214,1,0,0,0,0,64,0,-1--1--1,,1|(-281,139)|
+1,269,155,159,1,0,0,0,0,128,0,-1--1--1,,1|(127,421)|
+10,270,Relative food availability for MF,-983,331,65,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,271,Annual consumption MF,-903,223,60,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,272,Consumption by MF in bodyweight,-983,139,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,273,225,271,1,0,0,0,0,128,0,-1--1--1,,1|(-713,37)|
+1,274,272,271,1,0,0,0,0,128,0,-1--1--1,,1|(-928,165)|
+10,275,Grazed C by MF,-727,-1793,57,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,276,166,275,1,0,0,0,0,128,0,-1--1--1,,1|(-729,-1835)|
+10,277,Fraction of surface grazing by MF,-951,-1825,65,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,278,277,275,1,0,0,0,0,64,0,-1--1--1,,1|(-840,-1809)|
+1,279,281,163,4,0,0,22,0,0,0,-1--1--1,,1|(-585,-1612)|
+1,280,281,148,100,0,0,22,0,0,0,-1--1--1,,1|(-585,-1792)|
+11,281,1300,-585,-1739,11,11,33,3,0,0,2,0,0,0,0,0,0,0,0,0
+10,282,Vertically migrated C,-647,-1739,36,21,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,283,275,281,1,0,0,0,0,64,0,-1--1--1,,1|(-679,-1787)|
+1,284,148,281,1,0,0,0,0,64,0,-1--1--1,,1|(-537,-1813)|
+10,285,Export efficiency,151,-1659,59,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,286,Depth euphotic zone,112,-1621,69,15,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,287,285,190,1,0,0,0,0,128,0,-1--1--1,,1|(207,-1601)|
+1,288,286,190,1,0,0,0,0,128,0,-1--1--1,,1|(183,-1589)|
+10,289,Resolved share of food demand by MF,255,223,71,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,290,Mesopelagic fish adult,-873,-235,49,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,291,Mesopelagic fish juvinile,-761,-309,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,292,290,225,1,0,0,0,0,128,0,-1--1--1,,1|(-848,-241)|
+1,293,291,225,1,0,0,0,0,128,0,-1--1--1,,1|(-737,-293)|
+10,294,Average weight per adult MF,631,677,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,295,Temperature rise compared to 1750,-1017,1077,69,21,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,296,Logistic risk perception climate,-961,1071,75,17,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+10,297,Zooplankton,-1703,405,63,43,3,131,0,0,0,0,0,0,0,0,0,0,0,0
+12,298,48,-1929,389,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,299,301,297,4,0,0,22,0,0,0,-1--1--1,,1|(-1796,389)|
+1,300,301,298,100,0,0,22,0,0,0,-1--1--1,,1|(-1887,389)|
+11,301,48,-1841,389,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,302,Birth zooplankton,-1841,411,64,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,303,48,-1441,437,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,304,306,303,4,0,0,22,0,0,0,-1--1--1,,1|(-1496,437)|
+1,305,306,297,100,0,0,22,0,0,0,-1--1--1,,1|(-1605,437)|
+11,306,48,-1559,437,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,307,Death due to predation zooplankton,-1559,469,76,27,40,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,308,Initial zooplankton,-1751,517,64,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,309,308,297,1,0,0,0,0,64,1,-1--1--1,,1|(-1751,469)|
+10,310,Atmospheric CO2 concentration,-39,-1985,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,311,Volume ocean surface,-583,-2165,73,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,312,C concentration surface,-649,-2005,79,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,313,311,312,1,0,0,0,0,128,0,-1--1--1,,1|(-657,-2053)|
+1,314,148,312,1,0,0,0,0,128,0,-1--1--1,,1|(-608,-1921)|
+10,315,Depth euphotic zone,-721,-2235,79,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,316,Surface ocean,-497,-2225,48,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,317,315,311,1,0,0,0,0,128,0,-1--1--1,,1|(-656,-2213)|
+1,318,316,311,1,0,0,0,0,128,0,-1--1--1,,1|(-529,-2197)|
+10,319,cubic meters correction,-593,-2277,49,25,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+1,320,319,311,1,1,0,0,0,128,0,-1--1--1,,1|(-609,-2225)|
+10,321,Total atmospheric volume,551,-2149,64,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,322,Atmospheric concentration per m3,599,-2059,73,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,323,1,322,1,0,0,0,0,128,0,-1--1--1,,1|(647,-2021)|
+1,324,321,322,1,0,0,0,0,128,0,-1--1--1,,1|(559,-2065)|
+10,325,Transfer velocity for GtC per year,-17,-1925,71,21,8,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,326,Unit correction m3,-225,-2005,59,20,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,327,Lower 80 population growth,1897,-1163,69,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,328,Higher 80 population growth,2191,-1163,69,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,329,Annual fish consumption per capita,1312,779,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,330,World population,1471,747,68,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,331,Annual fish demand,1353,667,68,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,332,330,331,1,0,0,0,0,128,0,-1--1--1,,1|(1431,693)|
+1,333,329,331,1,0,0,0,0,128,0,-1--1--1,,1|(1335,735)|
+10,334,Linear risk perception,-1145,1029,48,21,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+10,335,Cubic risk perception,-817,1029,48,21,8,131,1,0,0,0,0,0,0,0,0,0,0,0
+10,336,Harvested fish in Gt,809,629,68,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,337,336,167,1,0,0,0,0,64,0,-1--1--1,,1|(895,581)|
+1,338,294,336,1,0,0,0,0,128,0,-1--1--1,,1|(697,677)|
+12,339,48,-327,667,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,340,342,339,4,0,0,22,0,0,0,-1--1--1,,1|(-327,635)|
+1,341,342,197,100,0,0,22,0,0,0,-1--1--1,,1|(-327,517)|
+11,342,48,-327,597,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,343,Harvesting effort juveniles,-257,597,53,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,344,Average weight per juvinile MF,743,751,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,345,Harvesting effort juveniles,969,683,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,346,344,336,1,0,0,0,0,128,0,-1--1--1,,1|(759,693)|
+1,347,345,336,1,0,0,0,0,128,0,-1--1--1,,1|(896,651)|
+10,348,Fraction juvinile to fish biomass,-103,623,71,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,349,351,163,4,0,0,22,0,0,0,-1--1--1,,1|(-503,-1585)|
+1,350,351,148,100,0,0,22,0,0,0,-1--1--1,,1|(-503,-1760)|
+11,351,398,-503,-1681,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,352,Downwelling,-433,-1681,57,11,40,131,0,0,-1,0,0,0,0,0,0,0,0,0
+10,353,Fraction grazed C ending up in surface,-720,-1643,63,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,354,353,282,1,0,0,0,0,128,0,-1--1--1,,1|(-681,-1685)|
+10,355,Effort,-89,949,21,11,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,356,Share of juvinile MF in feed stock,-609,149,49,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,357,225,356,0,0,0,0,0,64,0,-1--1--1,,1|(-641,-24)|
+10,358,Other food sources,-519,75,36,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,359,358,356,0,0,0,0,0,64,0,-1--1--1,,1|(-559,109)|
+1,360,356,213,1,0,0,0,0,128,0,-1--1--1,,1|(-503,149)|
+1,361,197,356,1,0,0,0,0,64,0,-1--1--1,,1|(-577,341)|
+10,362,Share of adult MF in feed stock,175,91,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,363,155,362,1,0,0,0,0,64,0,-1--1--1,,1|(39,261)|
+1,364,237,362,1,0,0,0,0,128,0,-1--1--1,,1|(71,21)|
+1,365,255,356,0,0,0,0,0,128,0,-1--1--1,,1|(-576,67)|
+1,366,368,1,4,0,0,22,0,0,0,-1--1--1,,1|(-12,-1845)|
+1,367,368,148,100,0,0,22,0,0,0,-1--1--1,,1|(-345,-1845)|
+11,368,5436,-185,-1845,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,369,Upwelling from surface,-185,-1813,49,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,370,372,1,4,0,0,22,0,0,0,-1--1--1,,1|(391,-1641)|
+1,371,372,163,100,0,0,22,0,0,0,-1--1--1,,1|(-52,-1451)|
+11,372,1806,391,-1451,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,373,Upwelling and mixing from deep,391,-1425,55,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,374,Downwelling water,-273,-1675,65,23,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,375,312,351,1,0,0,0,0,128,0,-1--1--1,,1|(-633,-1861)|
+1,376,374,352,1,0,0,0,0,128,0,-1--1--1,,1|(-369,-1691)|
+10,377,Residence time deep carbon,279,-1349,65,27,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,378,Upwelling delay surface,-257,-1745,57,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,379,377,373,1,0,0,0,0,128,0,-1--1--1,,1|(327,-1387)|
+1,380,163,373,1,0,0,0,0,64,0,-1--1--1,,1|(-80,-1387)|
+10,381,Other food sources,367,63,73,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,382,381,362,1,0,0,0,0,128,0,-1--1--1,,1|(311,47)|
+10,383,Biomass mesopelagic fish,223,-27,57,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,384,383,362,1,0,0,0,0,128,0,-1--1--1,,1|(175,15)|
+10,385,ppm conversion for ocean,-311,-2075,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,386,Oceanic C concentration,-359,-1979,48,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,387,148,386,1,0,0,0,0,128,0,-1--1--1,,1|(-417,-1915)|
+1,388,385,386,1,0,0,0,0,128,0,-1--1--1,,1|(-337,-2043)|
+10,389,Year,473,-353,17,11,8,3,1,0,-1,0,0,0,0,0,0,0,0,0
+10,390,Year,-641,-1675,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,391,390,282,1,0,0,0,0,128,0,-1--1--1,,1|(-641,-1707)|
+10,392,Year,-631,-645,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,393,392,176,1,0,0,0,0,128,0,-1--1--1,,1|(-535,-635)|
+1,394,392,229,1,0,0,0,0,128,0,-1--1--1,,1|(-705,-645)|
+10,395,Year,-871,341,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,396,Annual fishmeal demand,1247,597,57,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,397,331,396,1,0,0,0,0,128,0,-1--1--1,,1|(1327,613)|
+1,398,168,396,1,0,0,0,0,128,0,-1--1--1,,1|(1187,557)|
+10,399,Share of aquaculture,1401,501,69,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,400,399,396,1,0,0,0,0,128,0,-1--1--1,,1|(1351,549)|
+10,401,Share of irreplaceable fishmeal,1479,597,76,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,402,401,396,1,0,0,0,0,128,0,-1--1--1,,1|(1351,613)|
+10,403,Capacity specialist fisheries,15,1019,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,404,Average weight per juvinile MF,-417,715,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,405,386,152,1,0,0,0,0,64,0,-1--1--1,,1|(-279,-1963)|
+1,406,326,152,1,0,0,0,0,64,0,-1--1--1,,1|(-201,-1963)|
+1,407,310,152,1,0,0,0,0,128,0,-1--1--1,,1|(-113,-1931)|
+1,408,325,152,1,0,0,0,0,128,0,-1--1--1,,1|(-105,-1915)|
+1,409,148,369,1,0,0,0,0,64,0,-1--1--1,,1|(-393,-1813)|
+1,410,378,369,1,0,0,0,0,64,0,-1--1--1,,1|(-241,-1787)|
+1,411,403,355,1,0,0,0,0,128,0,-1--1--1,,1|(-25,997)|
+10,412,Percentage discarded fish,-81,821,48,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,413,Harvest limit,-81,741,47,9,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,414,412,413,1,0,0,0,0,128,0,-1--1--1,,1|(-89,757)|
+1,415,343,201,1,0,0,0,0,64,0,-1--1--1,,1|(-185,501)|
+1,416,226,160,1,0,0,0,0,64,0,-1--1--1,,1|(272,351)|
+1,417,355,343,1,0,0,0,0,64,0,-1--1--1,,1|(-281,677)|
+1,418,355,196,1,0,0,0,0,64,0,-1--1--1,,1|(79,789)|
+1,419,271,270,1,0,0,0,0,64,0,-1--1--1,,1|(-951,277)|
+1,420,348,195,1,0,0,0,0,128,0,-1--1--1,,1|(-32,613)|
+1,421,348,343,1,0,0,0,0,128,0,-1--1--1,,1|(-209,619)|
+1,422,294,196,1,0,0,0,0,128,0,-1--1--1,,1|(183,639)|
+1,423,404,342,1,0,0,0,0,128,0,-1--1--1,,1|(-353,645)|
+10,424,Effects of food shortage on births MF,-873,437,76,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,425,Effects of food shortage on deaths MF,-777,571,80,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,426,424,206,1,0,0,0,0,128,0,-1--1--1,,1|(-777,453)|
+10,427,Effects of food shortage on deaths MF,375,517,85,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+12,428,48,319,437,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,429,431,428,4,0,0,22,0,0,0,-1--1--1,,1|(260,437)|
+1,430,431,155,100,0,0,22,0,0,0,-1--1--1,,1|(133,437)|
+11,431,48,199,437,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,432,Death due hunger MF adult,199,469,64,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,433,Fraction juvinile to adult MF,-935,-347,65,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,434,155,432,1,0,0,0,0,64,0,-1--1--1,,1|(89,443)|
+1,435,427,432,0,0,0,0,0,128,0,-1--1--1,,1|(285,492)|
+1,436,290,433,1,0,0,0,0,128,0,-1--1--1,,1|(-921,-341)|
+1,437,291,433,1,0,0,0,0,128,0,-1--1--1,,1|(-833,-357)|
+10,438,Fraction juvinile to adult MF,215,549,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,439,438,432,0,0,0,0,0,128,0,-1--1--1,,1|(208,516)|
+12,440,48,-425,661,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,441,443,440,4,0,0,22,0,0,0,-1--1--1,,1|(-425,604)|
+1,442,443,197,100,0,0,22,0,0,0,-1--1--1,,1|(-425,488)|
+11,443,48,-425,539,11,11,33,131,0,0,4,0,0,0,0,0,0,0,0,0
+10,444,Death due to hunger juvinile MF,-377,539,43,39,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,445,425,443,1,0,0,0,0,64,0,-1--1--1,,1|(-585,597)|
+1,446,197,444,1,0,0,0,0,64,0,-1--1--1,,1|(-375,485)|
+10,447,Fraction juvinile to adult MF,-537,635,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,448,447,443,1,0,0,0,0,128,0,-1--1--1,,1|(-457,587)|
+1,449,444,201,1,0,0,0,0,128,0,-1--1--1,,1|(-257,507)|
+10,450,Phytoplankton,-1649,-571,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,451,48,-1905,-571,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,452,454,450,4,0,0,22,0,0,0,-1--1--1,,1|(-1748,-571)|
+1,453,454,451,100,0,0,22,0,0,0,-1--1--1,,1|(-1856,-571)|
+11,454,48,-1809,-571,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,455,Growth phytoplankton,-1809,-555,76,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+12,456,48,-1409,-571,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,457,459,456,4,0,0,22,0,0,0,-1--1--1,,1|(-1451,-571)|
+1,458,459,450,100,0,0,22,0,0,0,-1--1--1,,1|(-1552,-571)|
+11,459,48,-1497,-571,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,460,Death phytoplankton,-1497,-555,71,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,461,Initial phytoplankton,-1513,-619,71,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,462,461,450,0,0,0,0,0,128,1,-1--1--1,,1|(-1564,-599)|
+10,463,Annual consumption by zooplankton,-1417,-33,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,464,463,460,1,0,0,0,0,128,0,-1--1--1,,1|(-1449,-395)|
+10,465,Consumption by zooplankton in bodyweight,-1305,-321,57,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,466,465,463,1,0,0,0,0,128,0,-1--1--1,,1|(-1353,-245)|
+10,467,Turnover time phytoplankton,-1879,-475,47,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,468,Effects of food shortage on births zoo,-1872,53,76,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,469,Effects of food shortage on deaths zoo,-1641,37,80,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,470,Relative food availability zooplankton,-1655,-363,47,28,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,471,463,470,1,0,0,0,0,128,0,-1--1--1,,1|(-1505,-229)|
+1,472,450,470,1,0,0,0,0,128,0,-1--1--1,,1|(-1623,-475)|
+10,473,Influence CO2 concentration on pythoplankton growth 1,-2055,-843,76,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,474,Influence sunlight on phytoplankton growth 1,-1953,-939,76,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,475,Phtyoplankton concentration surface,-1561,-849,73,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,476,450,475,1,0,0,0,0,128,0,-1--1--1,,1|(-1561,-753)|
+1,477,475,474,1,0,0,0,0,128,0,-1--1--1,,1|(-1745,-955)|
+1,478,297,463,1,0,0,0,0,64,0,-1--1--1,,1|(-1593,155)|
+12,479,48,-1447,373,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,480,482,479,4,0,0,22,0,0,0,-1--1--1,,1|(-1501,373)|
+1,481,482,297,100,0,0,22,0,0,0,-1--1--1,,1|(-1604,373)|
+11,482,48,-1561,373,11,11,34,3,0,0,3,0,0,0,0,0,0,0,0,0
+10,483,Death due to hunger zooplankton,-1561,341,71,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,484,Year,-1777,-379,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,485,484,470,1,0,0,0,0,128,0,-1--1--1,,1|(-1731,-373)|
+1,486,297,301,1,0,0,0,0,64,0,-1--1--1,,1|(-1793,357)|
+1,487,469,483,1,0,0,0,0,64,0,-1--1--1,,1|(-1593,309)|
+1,488,297,482,1,0,0,0,0,64,0,-1--1--1,,1|(-1657,405)|
+1,489,468,301,1,0,0,0,0,64,0,-1--1--1,,1|(-1792,207)|
+10,490,Relative amount of zooplankton,-1655,597,65,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,491,308,490,1,0,0,0,0,128,0,-1--1--1,,1|(-1735,549)|
+1,492,297,490,1,0,0,0,0,128,0,-1--1--1,,1|(-1649,469)|
+10,493,Relative amount of phytoplankton,-1463,-709,65,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,494,450,493,1,0,0,0,0,128,0,-1--1--1,,1|(-1536,-673)|
+1,495,461,493,0,0,0,0,0,128,0,-1--1--1,,1|(-1492,-652)|
+1,496,467,455,1,0,0,0,0,64,0,-1--1--1,,1|(-1847,-523)|
+10,497,food shortage zooplankton,-1799,-305,44,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,498,497,468,1,0,0,0,0,64,0,-1--1--1,,1|(-1815,-97)|
+1,499,470,497,0,0,0,0,0,64,0,-1--1--1,,1|(-1723,-335)|
+10,500,Food shortage MF,-1047,501,60,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,501,500,424,1,0,0,0,0,64,0,-1--1--1,,1|(-961,479)|
+1,502,270,500,1,0,0,0,0,64,0,-1--1--1,,1|(-993,431)|
+1,503,500,425,1,0,0,0,0,128,0,-1--1--1,,1|(-985,533)|
+1,504,497,469,1,0,0,0,0,128,0,-1--1--1,,1|(-1720,-139)|
+12,505,48,9,155,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,506,508,505,4,0,0,22,0,0,0,-1--1--1,,1|(9,240)|
+1,507,508,155,100,0,0,22,0,0,0,-1--1--1,,1|(9,368)|
+11,508,48,9,331,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,509,Adult death due to predation MF,95,331,64,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,510,362,509,1,0,0,0,0,64,0,-1--1--1,,1|(119,207)|
+1,511,289,509,1,0,0,0,0,128,0,-1--1--1,,1|(185,293)|
+10,512,Juvinile predator,-305,-571,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,513,515,172,4,0,0,22,0,0,0,-1--1--1,,1|(-149,-577)|
+1,514,515,512,100,0,0,22,0,0,0,-1--1--1,,1|(-224,-577)|
+11,515,5700,-185,-577,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,516,Growth predator,-185,-555,59,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,517,Initial juvinile predator weight,-345,-661,64,31,8,131,0,0,-1,0,0,0,0,0,0,0,0,0
+1,518,517,512,0,0,0,0,0,64,1,-1--1--1,,1|(-325,-616)|
+10,519,Average weight per juvinile predator,-295,-491,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,520,519,512,0,0,0,0,0,128,1,-1--1--1,,1|(-296,-523)|
+1,521,519,227,0,0,0,0,0,128,0,-1--1--1,,1|(-367,-484)|
+1,522,512,227,1,0,0,0,0,128,0,-1--1--1,,1|(-388,-517)|
+1,523,177,515,1,0,0,0,0,64,0,-1--1--1,,1|(-345,-613)|
+10,524,Growth period predator,-249,-443,79,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,525,524,516,1,0,0,0,0,64,0,-1--1--1,,1|(-185,-491)|
+1,526,512,516,0,0,0,0,0,64,0,-1--1--1,,1|(-253,-564)|
+12,527,48,-272,-741,8,8,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,528,530,527,4,0,0,22,0,0,0,-1--1--1,,1|(-273,-709)|
+1,529,530,512,100,0,0,22,0,0,0,-1--1--1,,1|(-273,-629)|
+11,530,48,-273,-673,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,531,Juvinile predator death due to hunger,-192,-673,68,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,532,244,531,1,0,0,0,0,64,0,-1--1--1,,1|(-137,-757)|
+1,533,512,531,0,0,0,0,0,64,0,-1--1--1,,1|(-249,-621)|
+1,534,531,515,1,0,0,0,0,64,0,-1--1--1,,1|(-185,-629)|
+10,535,Relative amount of phytoplankton,-887,-1595,71,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,536,535,282,1,0,0,0,0,128,0,-1--1--1,,1|(-809,-1669)|
+1,537,535,351,1,0,0,0,0,128,0,-1--1--1,,1|(-679,-1585)|
+10,538,Relative amount of juvinile MF,-361,805,65,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,539,Relative amount of adult MF,191,837,65,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,540,Mesopelagic fish adult,161,971,49,21,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,541,Average weight per adult MF,219,917,69,21,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,542,Initial weight adult MF,59,919,48,21,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,543,540,539,1,1,0,0,0,128,0,-1--1--1,,1|(181,923)|
+1,544,541,539,0,1,0,0,0,128,0,-1--1--1,,1|(208,884)|
+1,545,542,539,1,1,0,0,0,128,0,-1--1--1,,1|(119,885)|
+1,546,539,196,1,0,0,0,0,128,0,-1--1--1,,1|(137,715)|
+1,547,538,343,1,0,0,0,0,128,0,-1--1--1,,1|(-311,708)|
+10,548,Change in temperature delayed,-1017,981,53,28,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,549,548,296,0,1,0,0,0,64,0,-1--1--1,,1|(-988,1027)|
+10,550,Catchability,-73,885,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,551,550,196,1,0,0,0,0,128,0,-1--1--1,,1|(57,741)|
+1,552,550,343,1,0,0,0,0,128,0,-1--1--1,,1|(-185,805)|
+10,553,Volume ocean surface,-1585,-929,55,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,554,553,475,0,0,0,0,0,128,0,-1--1--1,,1|(-1572,-892)|
+10,555,C concentration surface,-2201,-891,60,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,556,555,473,1,0,0,0,0,128,0,-1--1--1,,1|(-2121,-901)|
+1,557,493,459,1,0,0,0,0,64,0,-1--1--1,,1|(-1425,-641)|
+1,558,490,307,1,0,0,0,0,64,0,-1--1--1,,1|(-1593,533)|
+10,559,Relative amount of adult MF,336,287,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,560,Relative amount of juvinile MF,-529,219,53,32,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,561,560,213,1,0,0,0,0,128,0,-1--1--1,,1|(-489,251)|
+1,562,559,509,1,0,0,0,0,128,0,-1--1--1,,1|(223,315)|
+1,563,450,454,1,0,0,0,0,128,0,-1--1--1,,1|(-1713,-603)|
+10,564,Capacity mixed MF fisheries,-145,1029,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,565,564,355,1,0,0,0,0,128,0,-1--1--1,,1|(-113,997)|
+10,566,Sediment C,-481,-1227,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,567,569,566,4,0,0,22,0,0,0,-1--1--1,,1|(-521,-1279)|
+1,568,569,163,100,0,0,22,0,0,0,-1--1--1,,1|(-521,-1387)|
+11,569,4468,-521,-1317,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,570,Sedimentation of carbon,-449,-1317,59,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,571,573,1,4,0,0,22,0,0,0,-1--1--1,,1|(511,-1529)|
+1,572,573,566,100,0,0,22,0,0,0,-1--1--1,,1|(36,-1227)|
+11,573,4424,511,-1227,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,574,Weathering of carbon,511,-1201,75,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,575,Initial sediment C,-473,-1163,60,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,576,575,566,0,0,0,0,0,64,1,-1--1--1,,1|(-475,-1180)|
+10,577,Delay sedimentation,-407,-1371,69,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,578,Delay weathering,393,-1115,60,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,579,577,569,1,0,0,0,0,128,0,-1--1--1,,1|(-465,-1355)|
+1,580,578,574,1,0,0,0,0,128,0,-1--1--1,,1|(471,-1147)|
+1,581,163,569,1,0,0,0,0,128,0,-1--1--1,,1|(-505,-1419)|
+1,582,566,574,1,0,0,0,0,128,0,-1--1--1,,1|(-1,-1212)|
+1,583,548,334,0,1,0,0,0,128,0,-1--1--1,,1|(-1076,1004)|
+1,584,548,335,0,1,0,0,0,128,0,-1--1--1,,1|(-919,1004)|
+10,585,Year,-1888,347,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,586,585,301,0,0,0,0,0,128,0,-1--1--1,,1|(-1864,368)|
+1,587,589,163,4,0,0,22,0,0,0,-1--1--1,,3|(-865,-1477)|(-609,-1477)|(-604,-1477)|
+1,588,589,163,100,0,0,22,0,0,0,-1--1--1,,3|(-599,-1361)|(-599,-1361)|(-545,-1361)|
+11,589,1696,-865,-1361,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,590,Deep C sinking,-865,-1339,53,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,591,Average sinking time,-993,-1387,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,592,591,589,1,0,0,0,0,128,0,-1--1--1,,1|(-921,-1377)|
+1,593,163,589,1,0,0,0,0,128,0,-1--1--1,,1|(-679,-1403)|
+10,594,Average depth per layer,-793,-1499,80,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,595,594,164,0,0,0,0,0,128,0,-1--1--1,,1|(-727,-1511)|
+10,596,Average depth per layer,103,-1579,55,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,597,596,190,1,0,0,0,0,128,0,-1--1--1,,1|(208,-1541)|
+10,598,Vertically migrated C,63,-1541,41,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,599,598,190,0,0,0,0,0,128,0,-1--1--1,,1|(184,-1512)|
+10,600,sum deep C,-425,-1531,41,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,601,163,600,1,0,0,0,0,128,0,-1--1--1,,1|(-487,-1493)|
+10,602,Vector carbon loss by MF,-1319,-1547,64,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,603,Carbon loss underway,-1319,-1461,39,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,604,Living depth MF,-1441,-1473,41,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,605,Normalised vector carbon loss by MF,-1097,-1685,64,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,606,Carbon loss at living depth,-1161,-1499,47,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,607,594,602,1,0,0,0,0,128,0,-1--1--1,,1|(-1025,-1547)|
+1,608,604,602,1,0,0,0,0,64,0,-1--1--1,,1|(-1393,-1515)|
+1,609,606,602,1,0,0,0,0,64,0,-1--1--1,,1|(-1201,-1531)|
+1,610,603,602,1,0,0,0,0,64,0,-1--1--1,,1|(-1335,-1493)|
+1,611,602,605,1,0,0,0,0,64,0,-1--1--1,,1|(-1223,-1627)|
+1,612,605,282,1,0,0,0,0,128,0,-1--1--1,,1|(-967,-1739)|
+10,613,Total vertical migration,-913,-1691,47,21,8,3,0,18,0,0,0,0,-1--1--1,0-0-0,|12|I|255-128-0,0,0,0,0,0,0
+1,614,282,613,1,0,0,0,0,128,0,-1--1--1,,1|(-839,-1729)|
+1,615,128,327,0,0,0,0,0,128,0,-1--1--1,,1|(1975,-1196)|
+1,616,128,328,0,0,0,0,0,128,0,-1--1--1,,1|(2084,-1199)|
+10,617,Population growth,1847,-1105,57,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,618,327,617,0,0,0,0,0,128,0,-1--1--1,,1|(1871,-1132)|
+1,619,328,617,0,0,0,0,0,128,0,-1--1--1,,1|(2020,-1133)|
+10,620,Switch population growth,1703,-1125,57,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,621,620,617,0,0,0,0,0,64,0,-1--1--1,,1|(1772,-1115)|
+1,622,617,38,0,0,0,0,0,128,0,-1--1--1,,1|(1904,-1061)|
+1,623,128,40,0,0,0,0,0,128,0,-1--1--1,,1|(2028,-1201)|
+1,624,40,617,0,0,0,0,0,128,0,-1--1--1,,1|(1936,-1132)|
+10,625,Population growth,2191,-1617,39,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,626,625,104,0,0,0,0,0,128,0,-1--1--1,,1|(2184,-1585)|
+10,627,Influence sunlight on phytoplankton growth 2,-1665,-795,76,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,628,Switch influence sunlight on phytoplankton,-1785,-849,80,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,629,Switch influence CO2 on phytoplankton,-2151,-651,71,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,630,Influence CO2 concentration on pythoplankton growth 2,-2193,-757,76,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,631,Influence CO2 on phyto,-1985,-699,57,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,632,Influence sunlight on phyto,-1785,-747,55,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,633,629,631,0,0,0,0,0,128,0,-1--1--1,,1|(-2065,-675)|
+1,634,473,631,0,0,0,0,0,128,0,-1--1--1,,1|(-2020,-772)|
+1,635,630,631,0,0,0,0,0,128,0,-1--1--1,,1|(-2084,-724)|
+1,636,628,632,1,0,0,0,0,128,0,-1--1--1,,1|(-1776,-811)|
+1,637,474,632,1,0,0,0,0,128,0,-1--1--1,,1|(-1945,-827)|
+1,638,627,632,1,0,0,0,0,128,0,-1--1--1,,1|(-1729,-747)|
+1,639,475,627,0,0,0,0,0,64,0,-1--1--1,,1|(-1607,-824)|
+1,640,555,630,1,0,0,0,0,128,0,-1--1--1,,1|(-2201,-827)|
+1,641,632,454,1,0,0,0,0,128,0,-1--1--1,,1|(-1769,-699)|
+1,642,631,454,1,0,0,0,0,128,0,-1--1--1,,1|(-1953,-657)|
+10,643,Effective effort,455,773,52,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,644,196,643,1,0,0,0,0,128,0,-1--1--1,,1|(223,725)|
+1,645,539,643,1,0,0,0,0,128,0,-1--1--1,,1|(271,805)|
+1,646,294,643,1,0,0,0,0,128,0,-1--1--1,,1|(527,709)|
+1,647,344,643,1,0,0,0,0,128,0,-1--1--1,,1|(583,799)|
+10,648,Spawning MF,-679,379,79,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,649,648,205,1,0,0,0,0,128,0,-1--1--1,,1|(-633,379)|
+10,650,Life expectancy mauriculus,399,197,60,21,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,651,650,226,0,1,0,0,0,64,0,-1--1--1,,1|(396,264)|
+10,652,Life expectancy myctophidae adult,553,284,68,21,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,653,652,226,0,1,0,0,0,64,0,-1--1--1,,1|(480,311)|
+10,654,SWITCH lanternfish to mauriculus,464,245,48,28,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,655,654,226,0,1,0,0,0,64,0,-1--1--1,,1|(429,292)|
+10,656,Total remineralisation,183,-1723,73,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,657,190,656,1,0,0,0,0,128,0,-1--1--1,,1|(207,-1685)|
+10,658,Total upwelling,121,-1409,48,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,659,373,658,1,0,0,0,0,128,0,-1--1--1,,1|(231,-1429)|
+10,660,Saturation uptake,-129,-2043,33,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,661,660,152,1,0,0,0,0,128,0,-1--1--1,,1|(-129,-1989)|
+10,662,net uptake ocean,-87,-1675,55,11,8,3,1,0,0,0,0,0,0,0,0,0,0,0
+1,663,152,662,0,1,0,0,0,128,0,-1--1--1,,1|(-140,-1791)|
+1,664,369,662,0,1,0,0,0,128,0,-1--1--1,,1|(-136,-1743)|
+1,665,656,662,0,1,0,0,0,128,0,-1--1--1,,1|(49,-1696)|
+1,666,658,662,0,1,0,0,0,128,0,-1--1--1,,1|(20,-1537)|
+1,667,574,662,0,1,0,0,0,128,0,-1--1--1,,1|(216,-1432)|
+10,668,Other carbon fluxes,-407,-1611,43,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,669,668,352,1,0,0,0,0,128,0,-1--1--1,,1|(-407,-1659)|
+1,670,297,270,1,0,0,0,0,64,0,-1--1--1,,1|(-1349,368)|
+1,671,395,270,0,0,0,0,0,128,0,-1--1--1,,1|(-900,340)|
+1,672,197,342,1,0,0,0,0,64,0,-1--1--1,,1|(-345,501)|
+1,673,155,196,0,0,0,0,0,64,0,-1--1--1,,1|(71,504)|
+10,674,Death due to predation zooplankton,-864,-1883,76,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,675,674,275,1,0,0,0,0,128,0,-1--1--1,,1|(-777,-1835)|
+10,676,Switch risk reward mechanism,-1353,-1851,60,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,677,Relative amount of zooplankton,-1633,-1649,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,678,Effect of food availability on migration pattern 1,-1481,-1781,79,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,679,Effect of food availability on migration pattern 2,-1353,-1701,79,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,680,677,678,1,0,0,0,0,128,0,-1--1--1,,1|(-1513,-1697)|
+1,681,677,679,1,0,0,0,0,128,0,-1--1--1,,1|(-1417,-1669)|
+10,682,Fraction of migrating MF,-1177,-1813,48,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,683,682,277,0,0,0,0,0,64,0,-1--1--1,,1|(-1077,-1817)|
+1,684,171,277,1,0,0,0,0,128,0,-1--1--1,,1|(-1033,-1873)|
+1,685,170,682,1,0,0,0,0,128,0,-1--1--1,,1|(-1209,-1883)|
+1,686,679,682,1,0,0,0,0,128,0,-1--1--1,,1|(-1209,-1749)|
+1,687,678,682,1,0,0,0,0,128,0,-1--1--1,,1|(-1287,-1793)|
+1,688,676,682,1,0,0,0,0,128,0,-1--1--1,,1|(-1217,-1835)|
+10,689,Quota,-151,779,31,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,690,689,413,0,0,0,0,0,64,0,-1--1--1,,1|(-116,761)|
+1,691,197,214,1,0,0,0,0,64,0,-1--1--1,,1|(-385,341)|
+1,692,413,343,1,0,0,0,0,64,0,-1--1--1,,1|(-177,677)|
+1,693,413,196,1,0,0,0,0,64,0,-1--1--1,,1|(39,683)|
+10,694,Food availability if no zooplankton,-1625,-245,68,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,695,694,470,0,0,0,0,0,64,0,-1--1--1,,1|(-1637,-295)|
+10,696,High food shortage,-1943,-267,60,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,697,696,497,0,0,0,0,0,64,0,-1--1--1,,1|(-1877,-284)|
+10,698,High food shortage,-1121,575,37,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,699,698,500,1,0,0,0,0,128,0,-1--1--1,,1|(-1072,559)|
+10,700,High food shortage predators,-400,-821,64,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,701,700,241,1,0,0,0,0,64,0,-1--1--1,,1|(-521,-785)|
+1,702,700,244,1,0,0,0,0,128,0,-1--1--1,,1|(-289,-843)|
+10,703,Harvesting effort juveniles,592,885,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,704,703,643,1,0,0,0,0,128,0,-1--1--1,,1|(503,847)|
+10,705,Annual consumption MF,-1463,571,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,706,705,307,1,0,0,0,0,128,0,-1--1--1,,1|(-1537,543)|
+10,707,Relative amount of juvinile MF,377,923,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,708,707,643,1,0,0,0,0,128,0,-1--1--1,,1|(383,885)|
+10,709,Harvesting effort adults,656,565,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,710,709,336,1,0,0,0,0,128,0,-1--1--1,,1|(695,591)|
+10,711,Other food sources,-441,-149,41,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,712,711,266,1,0,0,0,0,128,0,-1--1--1,,1|(-473,-187)|
+10,713,Resolved share of food demand by MF,-361,123,53,37,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,714,713,214,1,0,0,0,0,128,0,-1--1--1,,1|(-329,165)|
+10,715,Consumed adult,215,165,43,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,716,715,509,1,0,0,0,0,128,0,-1--1--1,,1|(151,267)|
+10,717,SWITCH lanternfish to mauriculus,-679,407,71,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,718,717,648,0,2,0,0,0,64,0,-1--1--1,,1|(-679,393)|
+10,719,Spawning myctophidae,-679,407,47,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,720,719,648,0,2,0,0,0,64,0,-1--1--1,,1|(-679,393)|
+10,721,Spawning mauriculus,-679,407,39,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,722,721,648,0,2,0,0,0,64,0,-1--1--1,,1|(-679,393)|
+1,723,207,538,0,2,0,0,0,64,0,-1--1--1,,1|(-424,571)|
+1,724,197,538,0,2,0,0,0,64,0,-1--1--1,,1|(-369,611)|
+1,725,253,538,0,2,0,0,0,64,0,-1--1--1,,1|(-291,560)|
+10,726,Catchability myctophidae,479,871,47,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,727,Catchability mauriculus,479,871,43,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,728,SWITCH lanternfish to mauriculus,479,871,71,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,729,Growth period mauriculus,-185,411,52,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,730,729,209,0,2,0,0,0,64,0,-1--1--1,,1|(-185,397)|
+10,731,Growth period myctophidae,-185,411,52,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,732,731,209,0,2,0,0,0,64,0,-1--1--1,,1|(-185,397)|
+10,733,SWITCH lanternfish to mauriculus,-185,411,71,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,734,733,209,0,2,0,0,0,64,0,-1--1--1,,1|(-185,397)|
+10,735,Catchability,455,799,47,11,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,736,735,643,0,2,0,0,0,64,0,-1--1--1,,1|(455,791)|
+1,737,226,206,0,2,0,0,0,64,0,-1--1--1,,1|(-79,393)|
+10,738,SWITCH lanternfish to mauriculus,-1441,-1435,71,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,739,738,604,0,2,0,0,0,64,0,-1--1--1,,1|(-1441,-1448)|
+10,740,Living depth mauriculus,-1441,-1435,44,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,741,740,604,0,2,0,0,0,64,0,-1--1--1,,1|(-1441,-1448)|
+10,742,Living depth myctophidae,-1441,-1435,47,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,743,742,604,0,2,0,0,0,64,0,-1--1--1,,1|(-1441,-1448)|
+10,744,Amount of C from permafrost,1743,-1291,64,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,745,SCENARIO Permafrost,1535,-1387,47,21,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,746,745,31,0,2,0,0,0,64,0,-1--1--1,,1|(1535,-1408)|
+10,747,TIME STEP,-377,597,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,748,747,444,0,1,0,0,0,64,0,-1--1--1,,1|(-377,587)|
+10,749,TIME STEP,-193,463,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,750,749,201,0,1,0,0,0,64,0,-1--1--1,,1|(-193,455)|
+10,751,TIME STEP,-257,635,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,752,751,343,0,1,0,0,0,64,0,-1--1--1,,1|(-257,628)|
+10,753,TIME STEP,-343,299,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,754,753,214,0,1,0,0,0,64,0,-1--1--1,,1|(-343,292)|
+10,755,TIME STEP,119,629,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,756,755,196,0,1,0,0,0,64,0,-1--1--1,,1|(119,620)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Fisheries & decision making submodels
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|255-255-255|72,72,75,0
+10,1,Capacity specialist fisheries,971,7,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,2,Costs MF,1477,375,37,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,3,Meeting pulse train,496,1119,65,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,4,48,1199,7,11,11,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,5,7,4,4,0,0,22,0,0,0,-1--1--1,,1|(1147,7)|
+1,6,7,1,100,0,0,22,0,0,0,-1--1--1,,1|(1051,7)|
+11,7,48,1088,7,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,8,Reducing capacity specialist,1088,39,59,21,40,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,9,Specialist capacity building time,795,103,59,21,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,10,Harvesting quota,555,1387,65,37,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+10,11,Risk perception biomass 1,583,1611,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,12,Specialist capacity used,923,-225,80,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,13,Logistic risk perception climate,868,1671,64,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,14,Initial capacity specialist,955,87,52,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,15,14,1,0,0,0,0,0,64,1,-1--1--1,,1|(960,55)|
+10,16,Time between meeting,411,1055,76,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,17,16,3,1,0,0,0,0,64,0,-1--1--1,,1|(453,1079)|
+10,18,Planned specialist fisherie capacity,655,7,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,19,Initial planned capacity specialist,624,71,63,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,20,19,18,1,0,0,0,0,64,1,-1--1--1,,1|(623,39)|
+12,21,48,447,7,11,11,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,22,24,18,4,0,0,22,0,0,0,-1--1--1,,1|(565,7)|
+1,23,24,21,100,0,0,22,0,0,0,-1--1--1,,1|(479,7)|
+11,24,48,512,7,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,25,Planning new capacity specialist,512,39,63,21,40,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,26,28,1,4,0,0,22,0,0,0,-1--1--1,,1|(880,7)|
+1,27,28,18,100,0,0,22,0,0,0,-1--1--1,,1|(761,7)|
+11,28,2576,825,7,11,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,29,Building specialist capacity specialist,825,39,64,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,30,9,29,0,0,0,0,0,64,0,-1--1--1,,1|(807,76)|
+1,31,18,29,1,0,0,0,0,128,0,-1--1--1,,1|(709,64)|
+1,32,25,28,1,0,0,0,0,64,0,-1--1--1,,1|(640,-41)|
+10,33,Relative profitability MF,1327,279,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,34,2,33,1,0,0,0,0,128,0,-1--1--1,,1|(1339,311)|
+10,35,Fraction demand to supply fishmeal,1525,55,69,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,36,Sale price MF change due fishmeal shortage 1,1529,135,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,37,35,36,1,0,0,0,0,128,0,-1--1--1,,1|(1515,71)|
+10,38,Relative mixed capacity increase due to profit,191,379,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,39,1,24,1,0,0,0,0,128,0,-1--1--1,,1|(811,-73)|
+10,40,Harvested fish in Gt,1633,-144,80,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,41,1,7,1,0,0,0,0,64,0,-1--1--1,,1|(1017,-9)|
+10,42,Annual fishmeal demand,1705,7,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,43,42,35,1,0,0,0,0,64,0,-1--1--1,,1|(1621,7)|
+10,44,Biomass mesopelagic fish,724,1637,55,28,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,45,Capacity mixed fisheries,917,807,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,46,Mixed capacity used,511,487,69,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,47,Initial capacity mixed,763,823,73,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,48,47,45,0,0,0,0,0,64,1,-1--1--1,,1|(843,816)|
+1,49,38,90,1,0,0,0,0,64,0,-1--1--1,,1|(261,619)|
+10,50,Profitability change MF fisheries scenario 1,1653,640,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,51,Time,1489,679,28,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,52,51,50,0,0,0,0,0,64,0,-1--1--1,,1|(1540,665)|
+10,53,Costs MF status quo,1621,411,68,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,54,53,2,1,0,0,0,0,128,0,-1--1--1,,1|(1563,363)|
+10,55,Relative specialist capacity increase due to profit,193,80,80,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,56,55,24,1,0,0,0,0,64,0,-1--1--1,,1|(353,-16)|
+10,57,Relative specialist capacity decrease due to profit,1193,-73,79,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,58,57,7,1,0,0,0,0,128,0,-1--1--1,,1|(1099,-57)|
+10,59,Relative mixed capacity decrease due to profit,1145,576,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,60,59,95,1,0,0,0,0,128,0,-1--1--1,,1|(1067,608)|
+10,61,Influence environmental group,975,1495,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,62,Influence industry group,1035,1415,52,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,63,Relative profitability MF,1179,1344,60,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,64,Biomass MF delayed,667,1703,71,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,65,Biomass mesopelagic fish,667,1527,53,11,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,66,Information delay risk perception,699,1791,59,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,67,66,64,0,0,0,0,0,64,0,-1--1--1,,1|(683,1748)|
+1,68,44,64,0,0,0,0,0,128,0,-1--1--1,,1|(692,1675)|
+1,69,64,11,1,0,0,0,0,128,0,-1--1--1,,1|(640,1639)|
+10,70,Relative profitability delayed,1237,1447,71,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,71,Change in temperature delayed,875,1792,52,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,72,66,71,1,0,0,0,0,128,0,-1--1--1,,1|(775,1775)|
+1,73,71,13,1,0,0,0,0,128,0,-1--1--1,,1|(880,1735)|
+1,74,63,70,1,0,0,0,0,128,0,-1--1--1,,1|(1212,1387)|
+1,75,70,62,1,0,0,0,0,128,0,-1--1--1,,1|(1129,1415)|
+10,76,Information delay risk perception,1349,1349,60,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,77,76,70,1,0,0,0,0,128,0,-1--1--1,,1|(1292,1381)|
+10,78,SWITCH lanternfish to mauriculus,1696,336,80,17,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,79,78,53,1,0,0,0,0,128,0,-1--1--1,,1|(1675,367)|
+10,80,Costs status quo myctophidae,1792,407,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,81,Costs status quo mauriculus,1743,503,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,82,81,53,1,0,0,0,0,128,0,-1--1--1,,1|(1703,431)|
+1,83,80,53,1,0,0,0,0,128,0,-1--1--1,,1|(1697,383)|
+10,84,Proposed harvesting quota,213,1499,57,21,8,3,1,2,0,0,0,0,-1--1--1,0-0-0,|12||128-192-255,0,0,0,0,0,0
+10,85,Temperature rise compared to 1750,820,1867,69,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,86,85,71,0,0,0,0,0,64,0,-1--1--1,,1|(843,1840)|
+10,87,Capacity mixed MF fisheries,907,423,53,27,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,88,90,87,4,0,0,22,0,0,0,-1--1--1,,1|(869,535)|
+1,89,90,45,100,0,0,22,0,0,0,-1--1--1,,1|(869,711)|
+11,90,2400,869,631,11,11,33,3,0,0,2,0,0,0,0,0,0,0,0,0
+10,91,Increase mixed capacity MF,805,631,53,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,92,94,45,4,0,0,22,0,0,0,-1--1--1,,1|(953,711)|
+1,93,94,87,100,0,0,22,0,0,0,-1--1--1,,1|(953,535)|
+11,94,1564,953,631,11,11,33,3,0,0,4,0,0,0,0,0,0,0,0,0
+10,95,Decrease mixed capacity MF,1023,631,59,21,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,96,Initial capacity MF fisheries,783,407,52,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,97,96,87,0,0,0,0,0,128,1,-1--1--1,,1|(837,412)|
+1,98,87,94,0,0,0,0,0,64,0,-1--1--1,,1|(929,527)|
+10,99,Relative profitability regular fish,1225,379,43,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,100,45,90,0,0,0,0,0,64,0,-1--1--1,,1|(892,716)|
+10,101,Costs regular fish,1383,439,60,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,102,101,99,1,0,0,0,0,64,0,-1--1--1,,1|(1323,400)|
+10,103,Sale price regular fish,1361,507,73,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,104,103,99,1,0,0,0,0,64,0,-1--1--1,,1|(1305,439)|
+10,105,Relative profitability MF vs regular fish,1056,256,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,106,33,105,1,0,0,0,0,128,0,-1--1--1,,1|(1216,245)|
+1,107,99,105,1,0,0,0,0,128,0,-1--1--1,,1|(1141,311)|
+1,108,105,38,1,0,0,0,0,128,0,-1--1--1,,1|(613,271)|
+10,109,Sale price MF,1449,247,48,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,110,109,33,0,0,0,0,0,128,0,-1--1--1,,1|(1403,257)|
+1,111,53,109,1,0,0,0,0,128,0,-1--1--1,,1|(1568,320)|
+1,112,105,55,1,0,0,0,0,128,0,-1--1--1,,1|(631,215)|
+1,113,105,57,1,0,0,0,0,128,0,-1--1--1,,1|(1244,11)|
+1,114,87,46,1,0,0,0,0,128,0,-1--1--1,,1|(655,487)|
+10,115,Harvested fish in Gt delayed,1515,-89,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,116,Harvest information delay,1433,-161,64,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,117,116,115,0,0,0,0,0,64,0,-1--1--1,,1|(1468,-128)|
+1,118,40,115,0,0,0,0,0,128,0,-1--1--1,,1|(1591,-127)|
+1,119,115,35,1,0,0,0,0,128,0,-1--1--1,,1|(1536,-25)|
+10,120,Capacity mixed MF fisheries,761,-277,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,121,120,12,1,0,0,0,0,128,0,-1--1--1,,1|(843,-261)|
+1,122,105,59,1,0,0,0,0,64,0,-1--1--1,,1|(1141,400)|
+1,123,1,12,1,0,0,0,0,64,0,-1--1--1,,1|(951,-112)|
+10,124,Capacity specialist fisheries,495,375,68,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,125,124,46,1,0,0,0,0,128,0,-1--1--1,,1|(512,407)|
+10,126,Cubic risk perception,1067,1687,39,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,127,Linear risk perception,1163,1639,39,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,128,Switch risk perception climate,1097,1575,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,129,Risk perception climate,939,1607,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,130,128,129,0,0,0,0,0,128,0,-1--1--1,,1|(1024,1588)|
+1,131,127,129,0,0,0,0,0,128,0,-1--1--1,,1|(1067,1627)|
+1,132,126,129,0,0,0,0,0,128,0,-1--1--1,,1|(1008,1649)|
+1,133,13,129,0,0,0,0,0,128,0,-1--1--1,,1|(897,1643)|
+1,134,129,61,0,0,0,0,0,128,0,-1--1--1,,1|(955,1556)|
+10,135,Switch risk perception biomass,415,1575,63,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,136,Risk perception biomass 2,453,1687,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,137,64,136,0,0,0,0,0,64,0,-1--1--1,,1|(560,1696)|
+10,138,Risk perception biomass,657,1505,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,139,138,61,1,0,0,0,0,128,0,-1--1--1,,1|(793,1483)|
+1,140,136,138,1,0,0,0,0,128,0,-1--1--1,,1|(523,1568)|
+1,141,11,138,1,0,0,0,0,128,0,-1--1--1,,1|(640,1584)|
+1,142,135,138,0,0,0,0,0,128,0,-1--1--1,,1|(535,1540)|
+10,143,Switch profitability change MF fisheries,1707,571,64,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,144,Profitability change MF fisheries scenario 2,1481,599,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,145,51,144,1,0,0,0,0,128,0,-1--1--1,,1|(1493,647)|
+10,146,Profitability change MF fisheries,1535,519,60,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,147,50,146,0,0,0,0,0,128,0,-1--1--1,,1|(1599,583)|
+1,148,144,146,0,0,0,0,0,128,0,-1--1--1,,1|(1503,565)|
+1,149,143,146,0,0,0,0,0,128,0,-1--1--1,,1|(1625,549)|
+1,150,146,2,1,0,0,0,0,64,0,-1--1--1,,1|(1520,439)|
+10,151,Switch price change,1765,199,43,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,152,Sale price MF change due fishmeal shortage,1632,215,71,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,153,152,109,1,0,0,0,0,128,0,-1--1--1,,1|(1535,247)|
+1,154,151,152,1,0,0,0,0,128,0,-1--1--1,,1|(1723,183)|
+1,155,36,152,1,0,0,0,0,128,0,-1--1--1,,1|(1584,151)|
+10,156,Sale price MF change due fishmeal shortage 2,1707,103,75,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,157,156,152,1,0,0,0,0,128,0,-1--1--1,,1|(1643,167)|
+1,158,35,156,1,0,0,0,0,128,0,-1--1--1,,1|(1625,71)|
+10,159,Effective effort,924,-329,64,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,160,159,12,1,0,0,0,0,128,0,-1--1--1,,1|(935,-303)|
+10,161,Effective effort,399,432,64,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,162,161,46,1,0,0,0,0,128,0,-1--1--1,,1|(447,459)|
+10,163,Year,1099,695,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,164,163,95,0,0,0,0,0,64,0,-1--1--1,,1|(1072,671)|
+10,165,Year,785,576,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,166,165,91,0,0,0,0,0,64,0,-1--1--1,,1|(791,592)|
+10,167,Year,1183,69,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,168,167,8,0,0,0,0,0,64,0,-1--1--1,,1|(1157,64)|
+10,169,Year,473,103,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,170,169,25,1,0,0,0,0,64,0,-1--1--1,,1|(507,87)|
+10,171,Look up harvesting quota,368,1355,52,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,172,Time,405,1424,27,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,173,171,10,1,0,0,0,0,128,0,-1--1--1,,1|(427,1359)|
+1,174,172,10,1,0,0,0,0,128,0,-1--1--1,,1|(464,1403)|
+10,175,Relative specialist capacity increase due to used capacity,284,-121,84,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,176,Relative specialist capacity decrease due to used capacity,1168,-153,84,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,177,176,7,1,0,0,0,0,128,0,-1--1--1,,1|(1087,-105)|
+1,178,175,24,1,0,0,0,0,128,0,-1--1--1,,1|(427,-64)|
+10,179,Relative mixed capacity increase due to used capacity,432,587,75,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,180,Relative mixed capacity decrease due to used capacity,1061,487,75,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,181,179,91,1,0,0,0,0,128,0,-1--1--1,,1|(549,645)|
+1,182,180,94,1,0,0,0,0,128,0,-1--1--1,,1|(1033,555)|
+10,183,Specialist capacity used delayed,1205,-233,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,184,12,183,1,0,0,0,0,128,0,-1--1--1,,1|(1019,-272)|
+1,185,116,183,1,0,0,0,0,128,0,-1--1--1,,1|(1285,-224)|
+1,186,183,176,0,0,0,0,0,128,0,-1--1--1,,1|(1191,-204)|
+10,187,Mixed capacity used delayed,629,576,49,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,188,Information delay capacity in use,757,523,59,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,189,188,187,0,0,0,0,0,64,0,-1--1--1,,1|(697,549)|
+1,190,46,187,0,0,0,0,0,64,0,-1--1--1,,1|(556,523)|
+1,191,187,179,0,0,0,0,0,64,0,-1--1--1,,1|(551,581)|
+10,192,Efficiency factor fisheries,907,887,52,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,193,192,45,0,0,0,0,0,128,1,-1--1--1,,1|(911,859)|
+10,194,Total influence lobbying,937,1328,47,27,8,131,0,0,0,0,0,0,0,0,0,0,0,0
+1,195,62,194,0,0,0,0,0,128,0,-1--1--1,,1|(997,1377)|
+1,196,61,194,0,0,0,0,0,64,0,-1--1--1,,1|(959,1419)|
+10,197,TIME STEP,583,1041,53,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,198,197,3,0,0,0,0,0,128,0,-1--1--1,,1|(544,1077)|
+10,199,Quota,699,1239,43,20,3,3,0,0,0,0,0,0,0,0,0,0,0,0
+12,200,48,491,1239,11,11,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,201,203,199,4,0,0,22,0,0,0,-1--1--1,,1|(617,1239)|
+1,202,203,200,100,0,0,22,0,0,0,-1--1--1,,1|(532,1239)|
+11,203,48,571,1239,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,204,Setting quota,571,1259,43,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,205,Initial quota,677,1179,37,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,206,205,199,0,0,0,0,0,128,1,-1--1--1,,1|(683,1200)|
+1,207,3,203,1,0,0,0,0,128,0,-1--1--1,,1|(555,1168)|
+12,208,48,907,1232,11,11,0,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,209,211,208,4,0,0,22,0,0,0,-1--1--1,,1|(859,1231)|
+1,210,211,199,100,0,0,22,0,0,0,-1--1--1,,1|(775,1231)|
+11,211,48,815,1231,7,11,34,3,0,0,1,0,0,0,0,0,0,0,0,0
+10,212,Old quota,815,1253,33,11,40,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,213,199,211,1,0,0,0,0,128,0,-1--1--1,,1|(757,1205)|
+1,214,3,211,1,0,0,0,0,128,0,-1--1--1,,1|(699,1111)|
+1,215,194,204,1,0,0,0,0,128,0,-1--1--1,,1|(732,1344)|
+10,216,Mixed capacity used delayed,1051,395,55,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,217,216,180,1,0,0,0,0,128,0,-1--1--1,,1|(1083,439)|
+1,218,10,204,1,0,0,0,0,64,0,-1--1--1,,1|(576,1317)|
+10,219,Specialist capacity used delayed,277,-229,64,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,220,219,175,1,0,0,0,0,128,0,-1--1--1,,1|(261,-185)|
+10,221,Inertia,208,1259,21,11,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,222,204,221,1,0,0,0,0,128,0,-1--1--1,,1|(379,1280)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Lanternfish to mauriculus
+$192-192-192,0,Times New Roman|12||0-0-0|0-0-0|0-0-255|-1--1--1|255-255-255|72,72,85,0
+10,1,SWITCH lanternfish to mauriculus,257,523,71,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+10,2,Growth period mauriculus,688,228,47,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,3,Life expectancy mauriculus,693,415,53,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,4,Spawning mauriculus,700,553,37,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,5,Living depth mauriculus,695,709,43,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,6,growth period MF,549,217,64,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,7,Life expectancy adult MF,524,415,59,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,8,Living depth MF,539,709,57,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,9,Initial weight juvinile MF,535,837,47,21,8,3,1,0,-1,0,0,0,0,0,0,0,0,0
+10,10,Initial weight adult MF,528,965,80,11,8,3,1,0,-1,0,0,0,0,0,0,0,0,0
+10,11,Spawning MF,533,591,48,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,12,Growth period myctophidae,700,287,47,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,13,Life expectancy myctophidae adult,695,463,59,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,14,Spawning myctophidae,700,612,41,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,15,Living depth myctophidae,693,741,41,21,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+10,16,Female fraction,992,623,63,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,17,16,14,0,0,0,0,0,64,0,-1--1--1,,1|(841,617)|
+10,18,Spawning fraction,928,651,71,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,19,18,14,0,0,0,0,0,64,0,-1--1--1,,1|(807,628)|
+10,20,Survived larvea,956,596,63,11,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,21,20,14,0,0,0,0,0,64,0,-1--1--1,,1|(823,603)|
+1,22,2,6,0,0,0,0,0,0,0,-1--1--1,,1|(633,224)|
+1,23,3,7,0,0,0,0,0,0,0,-1--1--1,,1|(619,415)|
+1,24,4,11,0,0,0,0,0,0,0,-1--1--1,,1|(628,571)|
+1,25,5,8,0,0,0,0,0,0,0,-1--1--1,,1|(631,709)|
+1,26,1,7,0,0,0,0,0,128,0,-1--1--1,,1|(383,471)|
+1,27,1,6,0,0,0,0,0,128,0,-1--1--1,,1|(405,368)|
+1,28,1,11,0,0,0,0,0,128,0,-1--1--1,,1|(405,560)|
+1,29,1,8,0,0,0,0,0,128,0,-1--1--1,,1|(399,615)|
+1,30,12,6,1,0,0,0,0,128,0,-1--1--1,,1|(599,272)|
+1,31,13,7,1,0,0,0,0,128,0,-1--1--1,,1|(599,463)|
+1,32,14,11,1,0,0,0,0,128,0,-1--1--1,,1|(588,608)|
+1,33,15,8,1,0,0,0,0,128,0,-1--1--1,,1|(593,751)|
+10,34,Fraction spawning mauriculus vs myctophidae,869,528,59,28,8,3,0,0,0,0,0,0,0,0,0,0,0,0
+1,35,14,4,0,0,0,0,0,128,0,-1--1--1,,1|(700,592)|
+1,36,34,4,0,0,0,0,0,128,0,-1--1--1,,1|(780,539)|
+10,37,Costs MF status quo,512,901,53,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,38,Costs status quo mauriculus,699,871,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,39,38,37,0,0,0,0,0,0,0,-1--1--1,,1|(609,885)|
+10,40,Costs status quo myctophidae,695,972,59,21,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128,0,0,0,0,0,0
+1,41,40,37,0,0,0,0,0,0,0,-1--1--1,,1|(613,939)|
+1,42,1,37,1,0,0,0,0,128,0,-1--1--1,,1|(341,715)|
+10,43,Catchability,559,123,39,11,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+10,44,Catchability mauriculus,699,80,39,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,45,44,43,0,0,0,0,0,0,0,-1--1--1,,1|(633,97)|
+10,46,Catchability myctophidae,699,139,41,21,8,3,0,0,-1,0,0,0,0,0,0,0,0,0
+1,47,46,43,0,0,0,0,0,0,0,-1--1--1,,1|(635,133)|
+1,48,1,43,1,0,0,0,0,128,0,-1--1--1,,1|(379,224)|
+///---\\\
+:L<%^E!@
+1:Current.vdfx
+4:Time
+5:Initial sediment C
+6:L1
+9:Current
+19:55,0
+24:2010
+25:2100
+26:2100
+15:0,0,0,0,0,0
+27:0,
+34:0,
+42:1
+72:0
+73:0
+35:Date
+36:YYYY-MM-DD
+37:2010
+38:1
+39:1
+40:0
+41:0
+95:0
+96:0
+77:0
+78:0
+93:0
+94:0
+92:0
+91:0
+90:0
+87:0
+75:
+43:
